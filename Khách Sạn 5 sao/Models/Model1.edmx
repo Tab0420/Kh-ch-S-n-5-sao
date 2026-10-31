@@ -1,0 +1,409 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="booking_dbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Booking_Details">
+          <Key>
+            <PropertyRef Name="detail_id" />
+          </Key>
+          <Property Name="detail_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="booking_id" Type="int" />
+          <Property Name="room_id" Type="varchar" MaxLength="50" />
+          <Property Name="don_gia" Type="decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <EntityType Name="Bookings">
+          <Key>
+            <PropertyRef Name="booking_id" />
+          </Key>
+          <Property Name="booking_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="user_id" Type="int" />
+          <Property Name="ngay_checkin" Type="date" />
+          <Property Name="ngay_checkout" Type="date" />
+          <Property Name="ngay_dat" Type="datetime" />
+          <Property Name="so_nguoi_lon" Type="int" />
+          <Property Name="so_tre_em" Type="int" />
+          <Property Name="tong_tien" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="phuong_thuc_tt" Type="nvarchar" MaxLength="100" />
+          <Property Name="ghi_chu" Type="nvarchar" MaxLength="500" />
+          <Property Name="trang_thai" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Room_Types">
+          <Key>
+            <PropertyRef Name="type_id" />
+          </Key>
+          <Property Name="type_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ten_loai" Type="nvarchar" MaxLength="150" />
+          <Property Name="gia_tien" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="suc_chua" Type="int" />
+          <Property Name="dien_tich" Type="nvarchar" MaxLength="50" />
+          <Property Name="giuong" Type="nvarchar" MaxLength="100" />
+          <Property Name="view_phong" Type="nvarchar" MaxLength="100" />
+          <Property Name="tien_nghi" Type="nvarchar" MaxLength="500" />
+          <Property Name="co_an_sang" Type="bit" />
+        </EntityType>
+        <EntityType Name="Rooms">
+          <Key>
+            <PropertyRef Name="room_id" />
+          </Key>
+          <Property Name="room_id" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="type_id" Type="int" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="user_id" />
+          </Key>
+          <Property Name="user_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ho_ten" Type="nvarchar" MaxLength="255" />
+          <Property Name="email" Type="varchar" MaxLength="255" />
+          <Property Name="mat_khau" Type="varchar" MaxLength="255" />
+          <Property Name="so_dien_thoai" Type="varchar" MaxLength="20" />
+          <Property Name="vai_tro" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="FK_Bookings_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Bookings" Type="Self.Bookings" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="Bookings">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Details_Bookings">
+          <End Role="Bookings" Type="Self.Bookings" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Booking_Details" Type="Self.Booking_Details" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bookings">
+              <PropertyRef Name="booking_id" />
+            </Principal>
+            <Dependent Role="Booking_Details">
+              <PropertyRef Name="booking_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Details_Rooms">
+          <End Role="Rooms" Type="Self.Rooms" Multiplicity="0..1" />
+          <End Role="Booking_Details" Type="Self.Booking_Details" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rooms">
+              <PropertyRef Name="room_id" />
+            </Principal>
+            <Dependent Role="Booking_Details">
+              <PropertyRef Name="room_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Rooms_RoomTypes">
+          <End Role="Room_Types" Type="Self.Room_Types" Multiplicity="0..1" />
+          <End Role="Rooms" Type="Self.Rooms" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Room_Types">
+              <PropertyRef Name="type_id" />
+            </Principal>
+            <Dependent Role="Rooms">
+              <PropertyRef Name="type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="booking_dbModelStoreContainer">
+          <EntitySet Name="Booking_Details" EntityType="Self.Booking_Details" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Bookings" EntityType="Self.Bookings" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Room_Types" EntityType="Self.Room_Types" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Rooms" EntityType="Self.Rooms" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Bookings_Users" Association="Self.FK_Bookings_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Bookings" EntitySet="Bookings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Details_Bookings" Association="Self.FK_Details_Bookings">
+            <End Role="Bookings" EntitySet="Bookings" />
+            <End Role="Booking_Details" EntitySet="Booking_Details" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Details_Rooms" Association="Self.FK_Details_Rooms">
+            <End Role="Rooms" EntitySet="Rooms" />
+            <End Role="Booking_Details" EntitySet="Booking_Details" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Rooms_RoomTypes" Association="Self.FK_Rooms_RoomTypes">
+            <End Role="Room_Types" EntitySet="Room_Types" />
+            <End Role="Rooms" EntitySet="Rooms" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="booking_dbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Booking_Details">
+          <Key>
+            <PropertyRef Name="detail_id" />
+          </Key>
+          <Property Name="detail_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="booking_id" Type="Int32" />
+          <Property Name="room_id" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="don_gia" Type="Decimal" Precision="18" Scale="2" />
+          <NavigationProperty Name="Booking" Relationship="Self.FK_Details_Bookings" FromRole="Booking_Details" ToRole="Bookings" />
+          <NavigationProperty Name="Room" Relationship="Self.FK_Details_Rooms" FromRole="Booking_Details" ToRole="Rooms" />
+        </EntityType>
+        <EntityType Name="Booking">
+          <Key>
+            <PropertyRef Name="booking_id" />
+          </Key>
+          <Property Name="booking_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="user_id" Type="Int32" />
+          <Property Name="ngay_checkin" Type="DateTime" Precision="0" />
+          <Property Name="ngay_checkout" Type="DateTime" Precision="0" />
+          <Property Name="ngay_dat" Type="DateTime" Precision="3" />
+          <Property Name="so_nguoi_lon" Type="Int32" />
+          <Property Name="so_tre_em" Type="Int32" />
+          <Property Name="tong_tien" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="phuong_thuc_tt" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ghi_chu" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="trang_thai" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Booking_Details" Relationship="Self.FK_Details_Bookings" FromRole="Bookings" ToRole="Booking_Details" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Bookings_Users" FromRole="Bookings" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="Room_Types">
+          <Key>
+            <PropertyRef Name="type_id" />
+          </Key>
+          <Property Name="type_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ten_loai" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="gia_tien" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="suc_chua" Type="Int32" />
+          <Property Name="dien_tich" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="giuong" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="view_phong" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="tien_nghi" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="co_an_sang" Type="Boolean" />
+          <NavigationProperty Name="Rooms" Relationship="Self.FK_Rooms_RoomTypes" FromRole="Room_Types" ToRole="Rooms" />
+        </EntityType>
+        <EntityType Name="Room">
+          <Key>
+            <PropertyRef Name="room_id" />
+          </Key>
+          <Property Name="room_id" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="type_id" Type="Int32" />
+          <NavigationProperty Name="Booking_Details" Relationship="Self.FK_Details_Rooms" FromRole="Rooms" ToRole="Booking_Details" />
+          <NavigationProperty Name="Room_Types" Relationship="Self.FK_Rooms_RoomTypes" FromRole="Rooms" ToRole="Room_Types" />
+        </EntityType>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="user_id" />
+          </Key>
+          <Property Name="user_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ho_ten" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="email" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mat_khau" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="so_dien_thoai" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="vai_tro" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Bookings" Relationship="Self.FK_Bookings_Users" FromRole="Users" ToRole="Bookings" />
+        </EntityType>
+        <Association Name="FK_Details_Bookings">
+          <End Role="Bookings" Type="Self.Booking" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Booking_Details" Type="Self.Booking_Details" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bookings">
+              <PropertyRef Name="booking_id" />
+            </Principal>
+            <Dependent Role="Booking_Details">
+              <PropertyRef Name="booking_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Details_Rooms">
+          <End Role="Rooms" Type="Self.Room" Multiplicity="0..1" />
+          <End Role="Booking_Details" Type="Self.Booking_Details" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rooms">
+              <PropertyRef Name="room_id" />
+            </Principal>
+            <Dependent Role="Booking_Details">
+              <PropertyRef Name="room_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Bookings_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Bookings" Type="Self.Booking" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="Bookings">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Rooms_RoomTypes">
+          <End Role="Room_Types" Type="Self.Room_Types" Multiplicity="0..1" />
+          <End Role="Rooms" Type="Self.Room" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Room_Types">
+              <PropertyRef Name="type_id" />
+            </Principal>
+            <Dependent Role="Rooms">
+              <PropertyRef Name="type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="booking_dbEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Booking_Details" EntityType="Self.Booking_Details" />
+          <EntitySet Name="Bookings" EntityType="Self.Booking" />
+          <EntitySet Name="Room_Types" EntityType="Self.Room_Types" />
+          <EntitySet Name="Rooms" EntityType="Self.Room" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_Details_Bookings" Association="Self.FK_Details_Bookings">
+            <End Role="Bookings" EntitySet="Bookings" />
+            <End Role="Booking_Details" EntitySet="Booking_Details" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Details_Rooms" Association="Self.FK_Details_Rooms">
+            <End Role="Rooms" EntitySet="Rooms" />
+            <End Role="Booking_Details" EntitySet="Booking_Details" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Bookings_Users" Association="Self.FK_Bookings_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Bookings" EntitySet="Bookings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Rooms_RoomTypes" Association="Self.FK_Rooms_RoomTypes">
+            <End Role="Room_Types" EntitySet="Room_Types" />
+            <End Role="Rooms" EntitySet="Rooms" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="booking_dbModelStoreContainer" CdmEntityContainer="booking_dbEntities">
+          <EntitySetMapping Name="Booking_Details">
+            <EntityTypeMapping TypeName="booking_dbModel.Booking_Details">
+              <MappingFragment StoreEntitySet="Booking_Details">
+                <ScalarProperty Name="detail_id" ColumnName="detail_id" />
+                <ScalarProperty Name="booking_id" ColumnName="booking_id" />
+                <ScalarProperty Name="room_id" ColumnName="room_id" />
+                <ScalarProperty Name="don_gia" ColumnName="don_gia" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Bookings">
+            <EntityTypeMapping TypeName="booking_dbModel.Booking">
+              <MappingFragment StoreEntitySet="Bookings">
+                <ScalarProperty Name="booking_id" ColumnName="booking_id" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="ngay_checkin" ColumnName="ngay_checkin" />
+                <ScalarProperty Name="ngay_checkout" ColumnName="ngay_checkout" />
+                <ScalarProperty Name="ngay_dat" ColumnName="ngay_dat" />
+                <ScalarProperty Name="so_nguoi_lon" ColumnName="so_nguoi_lon" />
+                <ScalarProperty Name="so_tre_em" ColumnName="so_tre_em" />
+                <ScalarProperty Name="tong_tien" ColumnName="tong_tien" />
+                <ScalarProperty Name="phuong_thuc_tt" ColumnName="phuong_thuc_tt" />
+                <ScalarProperty Name="ghi_chu" ColumnName="ghi_chu" />
+                <ScalarProperty Name="trang_thai" ColumnName="trang_thai" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Room_Types">
+            <EntityTypeMapping TypeName="booking_dbModel.Room_Types">
+              <MappingFragment StoreEntitySet="Room_Types">
+                <ScalarProperty Name="type_id" ColumnName="type_id" />
+                <ScalarProperty Name="ten_loai" ColumnName="ten_loai" />
+                <ScalarProperty Name="gia_tien" ColumnName="gia_tien" />
+                <ScalarProperty Name="suc_chua" ColumnName="suc_chua" />
+                <ScalarProperty Name="dien_tich" ColumnName="dien_tich" />
+                <ScalarProperty Name="giuong" ColumnName="giuong" />
+                <ScalarProperty Name="view_phong" ColumnName="view_phong" />
+                <ScalarProperty Name="tien_nghi" ColumnName="tien_nghi" />
+                <ScalarProperty Name="co_an_sang" ColumnName="co_an_sang" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Rooms">
+            <EntityTypeMapping TypeName="booking_dbModel.Room">
+              <MappingFragment StoreEntitySet="Rooms">
+                <ScalarProperty Name="room_id" ColumnName="room_id" />
+                <ScalarProperty Name="type_id" ColumnName="type_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="booking_dbModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="booking_dbModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="ho_ten" ColumnName="ho_ten" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="mat_khau" ColumnName="mat_khau" />
+                <ScalarProperty Name="so_dien_thoai" ColumnName="so_dien_thoai" />
+                <ScalarProperty Name="vai_tro" ColumnName="vai_tro" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

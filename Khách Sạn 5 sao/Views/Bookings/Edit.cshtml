@@ -1,0 +1,104 @@
+﻿@model Khách_Sạn_5_sao.Models.Booking
+
+@{
+    ViewBag.Title = "Chỉnh Sửa Đơn Đặt Phòng";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+    var roomList = ViewBag.RoomList as List<Khách_Sạn_5_sao.Models.Room>;
+    var selectedRoomIds = ViewBag.SelectedRoomIds as List<string> ?? new List<string>();
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/Content/StyleEdit.css" />
+<div class="container my-5" style="max-width: 850px;">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+
+        <div class="card-header bg-purple text-white p-4">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>CẬP NHẬT ĐƠN ĐẶT PHÒNG #@Model.booking_id</h4>
+        </div>
+
+        <div class="card-body p-4 bg-white">
+            @using (Html.BeginForm("Edit", "Bookings", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.booking_id)
+
+                <!-- THÔNG TIN LƯU TRÚ -->
+                <div class="p-3 mb-4 bg-light rounded-3 border">
+                    <h6 class="fw-bold text-purple mb-3">1. THỜI GIAN & KHÁCH HÀNG</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">Tên Khách Hàng</label>
+                            @Html.DropDownList("user_id", null, htmlAttributes: new { @class = "form-select fw-bold text-dark" })
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">Trạng Thái Đơn</label>
+                            <select name="trang_thai" class="form-select fw-bold text-purple">
+                                <option value="Đã xác nhận" @(Model.trang_thai == "Đã xác nhận" ? "selected" : "")>Đã xác nhận</option>
+                                <option value="Chờ xử lý" @(Model.trang_thai == "Chờ xử lý" ? "selected" : "")>Chờ xử lý</option>
+                                <option value="Đã hủy" @(Model.trang_thai == "Đã hủy" ? "selected" : "")>Đã hủy</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">Check-in (Nhận phòng)</label>
+                            <input type="date" name="ngay_checkin" class="form-control" value="@(Model.ngay_checkin.HasValue ? Model.ngay_checkin.Value.ToString("yyyy-MM-dd") : "")" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">Check-out (Trả phòng)</label>
+                            <input type="date" name="ngay_checkout" class="form-control" value="@(Model.ngay_checkout.HasValue ? Model.ngay_checkout.Value.ToString("yyyy-MM-dd") : "")" required />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DANH SÁCH CHỌN PHÒNG -->
+                <div class="p-3 mb-4 bg-light rounded-3 border">
+                    <h6 class="fw-bold text-purple mb-3">2. CHỌN PHÒNG LƯU TRÚ</h6>
+                    <div class="row g-2">
+                        @if (roomList != null && roomList.Any())
+                        {
+                            foreach (var room in roomList)
+                            {
+                                bool isChecked = selectedRoomIds.Contains(room.room_id);
+                                string typeName = room.Room_Types != null ? room.Room_Types.ten_loai : "Phòng tiêu chuẩn";
+                                decimal price = room.Room_Types != null && room.Room_Types.gia_tien.HasValue ? room.Room_Types.gia_tien.Value : 0;
+
+                                <div class="col-sm-6">
+                                    <div class="form-check p-2 border rounded bg-white shadow-sm d-flex align-items-center">
+                                        <input class="form-check-input ms-1 me-2" type="checkbox" name="selectedRooms" value="@room.room_id" id="chk_@room.room_id" @(isChecked ? "checked" : "") style="transform: scale(1.1);" />
+                                        <label class="form-check-label fw-bold text-dark mb-0" for="chk_@room.room_id">
+                                            Phòng @room.room_id <small class="text-muted fw-normal">(@typeName)</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- TỔNG TIỀN VÀ GHI CHÚ -->
+                <div class="p-3 mb-4 bg-light rounded-3 border">
+                    <h6 class="fw-bold text-purple mb-3">3. CHI PHÍ & GHI CHÚ</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">Tổng Tiền (VNĐ)</label>
+                            <input type="number" name="tong_tien" class="form-control fw-bold text-danger fs-5" value="@(Model.tong_tien ?? 0)" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-secondary">Ghi Chú Yêu Cầu</label>
+                            <textarea name="ghi_chu" class="form-control" rows="1">@Model.ghi_chu</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <a href="@Url.Action("Index", "Bookings")" class="btn btn-secondary px-4 fw-bold rounded-3">
+                        <i class="bi bi-arrow-left me-1"></i> Trở Lại
+                    </a>
+                    <button type="submit" class="btn btn-purple px-5 py-2 fw-bold rounded-3 shadow">
+                        <i class="bi bi-check-circle-fill me-1"></i> Lưu Thay Đổi
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

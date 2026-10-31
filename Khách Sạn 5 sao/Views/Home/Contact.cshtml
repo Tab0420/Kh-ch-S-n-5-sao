@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewBag.Title = "Liên hệ";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+<link rel="stylesheet" href="~/Content/StyleLH.css" />
+<div class="contact-page">
+
+    <section class="contact-banner">
+        <div>
+            <h1>Liên Hệ Với Chúng Tôi</h1>
+            <p>
+                Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn<br />
+                Hãy liên hệ để được tư vấn cho kỳ nghỉ của mình
+            </p>
+        </div>
+    </section>
+
+    <section class="contact-heading">
+        <h2>Kết Nối Với MoonLight Hotel</h2>
+        <p>Gửi câu hỏi hoặc yêu cầu tư vấn của bạn qua biểu mẫu bên dưới.</p>
+    </section>
+
+    <section class="contact-container">
+
+
+        <div class="contact-info">
+            <h3>Thông Tin Liên Hệ</h3>
+
+            <div class="contact-item">
+                <strong>Địa chỉ</strong>
+                Số xx đường ddd, Nha Trang,
+                Khánh Hòa, Việt Nam
+            </div>
+
+            <div class="contact-item">
+                <strong>Điện thoại</strong>
+                <a href="tel:+842583736688"
+                   style="color:white; text-decoration:none">
+                    XXX 123 456
+                </a>
+            </div>
+
+            <div class="contact-item">
+                <strong>Email</strong>
+                <a href="mailto:info@imperialnhatranghotel.com.vn"
+                   style="color:white; text-decoration:none">
+                    moonlighthotel@gmail.com
+                </a>
+            </div>
+
+            <div class="contact-item">
+                <strong>Website</strong>
+                <a href="https://imperialnhatranghotel.com.vn/"
+                   target="_blank"
+                   style="color:white; text-decoration:none">
+                    moonlighthotel.com.vn
+                </a>
+            </div>
+        </div>
+
+
+        <div class="contact-form">
+            <h3>Gửi Yêu Cầu Tư Vấn</h3>
+
+            <form asp-controller="Home"
+                  asp-action="Contact"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="form-row">
+                    <label for="name">Họ và tên *</label>
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           placeholder="Nhập họ và tên"
+                           required />
+                </div>
+
+                <div class="form-row">
+                    <label for="email">Email *</label>
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           placeholder="example@email.com"
+                           required />
+                </div>
+
+                <div class="form-row">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="tel"
+                           id="phone"
+                           name="phone"
+                           placeholder="Nhập số điện thoại" />
+                </div>
+
+                <div class="form-row">
+                    <label for="subject">Nội dung cần tư vấn *</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">-- Chọn nội dung --</option>
+                        <option value="Đặt phòng">Đặt phòng</option>
+                        <option value="Ẩm thực">Ẩm thực</option>
+                        <option value="Tiện ích">Tiện ích</option>
+                        <option value="Dịch vụ">Dịch vụ</option>
+                        <option value="Ưu đãi">Ưu đãi</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="message">Lời nhắn *</label>
+                    <textarea id="message"
+                              name="message"
+                              placeholder="Nhập nội dung cần tư vấn..."
+                              required></textarea>
+                </div>
+
+                <button type="submit" class="contact-button">
+                    Gửi yêu cầu
+                </button>
+
+            </form>
+        </div>
+
+    </section>
+
+    <section class="contact-bottom">
+        <h2>Cảm Ơn Bạn Đã Quan Tâm</h2>
+        <p>Khám phá các lựa chọn phòng nghỉ phù hợp với kỳ nghỉ của bạn.</p>
+
+        <a class="contact-button"
+           asp-controller="Home"
+           asp-action="PhongNghi"
+           style="text-decoration:none">
+            Xem phòng nghỉ
+        </a>
+    </section>
+
+</div>
+
+

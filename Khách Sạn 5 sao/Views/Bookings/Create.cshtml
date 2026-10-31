@@ -1,0 +1,776 @@
+﻿@model Khách_Sạn_5_sao.Models.Booking
+
+@{
+    ViewBag.Title = "Đặt Phòng Khách Sạn";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+        var roomTypes = ViewBag.RoomTypes as List<Khách_Sạn_5_sao.Models.Room_Types>;
+        var availableRooms = ViewBag.AvailableRooms as List<Khách_Sạn_5_sao.Models.Room>;
+
+        string customName = ViewBag.CustomRoomName as string ?? Request.QueryString["roomName"];
+        string customPrice = ViewBag.CustomPrice as string ?? Request.QueryString["price"];
+        string customImage = ViewBag.CustomImage as string ?? Request.QueryString["image"];
+        string customArea = ViewBag.CustomArea != null ? ViewBag.CustomArea.ToString() : Request.QueryString["area"];
+        string customCapacity = ViewBag.CustomCapacity != null ? ViewBag.CustomCapacity.ToString() : Request.QueryString["capacity"];
+
+        int? urlTypeId = ViewBag.SelectedTypeId as int? ?? (int.TryParse(Request.QueryString["type_id"], out int tid) ? tid : (int?)null);
+    }
+
+    <!-- CDN Bootstrap 5 & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .bg-purple {
+            background-color: #5c3c92 !important;
+        }
+
+        .text-purple {
+            color: #5c3c92 !important;
+        }
+
+        .btn-purple {
+            background-color: #5c3c92;
+            color: white;
+            font-weight: bold;
+            border: none;
+        }
+
+            .btn-purple:hover {
+                background-color: #4a2f77;
+                color: white;
+            }
+
+        .btn-outline-purple {
+            color: #5c3c92;
+            border-color: #5c3c92;
+            font-weight: bold;
+        }
+
+            .btn-outline-purple:hover {
+                background-color: #5c3c92;
+                color: white;
+            }
+
+        .room-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .amenity-badge {
+            background-color: #f0ebf8;
+            color: #5c3c92;
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .service-card {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+        }
+
+            .service-card:hover {
+                border-color: #5c3c92;
+                background-color: #fcfaff;
+            }
+
+        .thumbnail-img:hover {
+            border-color: #5c3c92 !important;
+            opacity: 0.8;
+        }
+
+
+    </style>
+
+    <div class="container my-4">
+        @using (Html.BeginForm("Create", "Bookings", FormMethod.Post, new { id = "bookingForm" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <!-- THÔNG TIN KHÁCH HÀNG & NGÀY ĐẶT -->
+            <div class="card shadow-sm border-0 mb-4 rounded-3 overflow-hidden">
+                <div class="card-header bg-purple text-white p-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-check me-2"></i>THÔNG TIN ĐẶT PHÒNG MOONLIGHT HOTEL</h5>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary small">Check-in (Nhận phòng)</label>
+                            <input type="date" id="ngay_checkin" name="ngay_checkin" class="form-control" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary small">Check-out (Trả phòng)</label>
+                            <input type="date" id="ngay_checkout" name="ngay_checkout" class="form-control" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary small">Họ và Tên (*)</label>
+                            <input type="text" name="ho_ten" class="form-control" placeholder="Nhập tên khách..." required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary small">Số Điện Thoại (*)</label>
+                            <input type="tel" id="so_dien_thoai" name="so_dien_thoai" class="form-control"
+                                   placeholder="VD: 0912345678"
+                                   pattern="^(0|\+84)[35789][0-9]{8}$"
+                                   maxlength="12"
+                                   title="Vui lòng nhập đúng 10 chữ số SĐT Việt Nam" required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 align-items-stretch">
+
+                <!-- CỘT TRÁI: DANH SÁCH LOẠI PHÒNG & CHỌN PHÒNG CỤ THỂ -->
+                <div class="col-lg-8">
+
+                    @if (roomTypes != null && roomTypes.Any())
+                    {
+                        foreach (var type in roomTypes)
+                        {
+                            var roomsInType = availableRooms != null ? availableRooms.Where(r => r.type_id == type.type_id).ToList() : new List<Khách_Sạn_5_sao.Models.Room>();
+
+                            bool isTargetType = urlTypeId.HasValue ? (type.type_id == urlTypeId.Value) : false;
+
+                            // TỔNG HỢP CẢ 6 HẠNG PHÒNG VỚI DANH SÁCH PHÒNG CỤ THỂ
+                            var defaultSubRooms = new List<dynamic>();
+
+                            if (type.ten_loai.Contains("Superior") || type.type_id == 1)
+                            {
+                                defaultSubRooms = new List<dynamic> {
+                                new { Name = "Silver Moon", Price = 1200000, Area = "30m²", Capacity = 3, Img = "https://poliva.vn/wp-content/uploads/2019/08/phong-Superior-3.jpg" }, new { Name = "Lavender Dream", Price = 1300000, Area = "35m²", Capacity = 2, Img = "https://yiwin.vn/wp-content/uploads/2025/09/Phong-Superior-Double.jpg" },
+                                new { Name = "Starlight Haven", Price = 1500000, Area = "35m²", Capacity = 2, Img = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyYM8VMRdKcgqv-7cXMzFx04X-_U3Wi15yrxHYoJv3o_Xlo2aHddFxBCfW&s=10" },
+                                new { Name = "Pearl Glow", Price = 1800000, Area = "50m²", Capacity = 4, Img = "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/72/2026/08/18131501/Room-2709_12196.jpg" },
+                                new { Name = "Velvet Night", Price = 2000000, Area = "36m²", Capacity = 2, Img = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4zONR5glibppTO0KOCMTC-Zm9SbhGfSnGx3_MJm_hJjbN3Tgi2K_8dA5q&s=10" },
+                                new { Name = "Celestial Room", Price = 2500000, Area = "35m²", Capacity = 2, Img = "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/si…01/2024/10/10044811/Superior-with-Balcony_02-min-370x276.jpg" }
+                            };
+
+                            }
+                            else if (type.ten_loai.Contains("Deluxe") || type.type_id == 2)
+                            {
+                                defaultSubRooms = new List<dynamic> {
+                                new { Name = "Royal Velvet", Price = 1500000, Area = "42m²", Capacity = 2, Img = "https://aftavietnam.com.vn/wp-content/uploads/2024/01/phong-deluxe-la-gi-co-nen-chon-phong-deluxe-khong-22960-7.jpg" },
+                                new { Name = "Golden Hour", Price = 1700000, Area = "40m²", Capacity = 2, Img = "https://hoteldelamourtamdao.com/wp-content/uploads/2023/06/Deluxe-King-1.jpg" },
+                                new { Name = "Midnight Elegance", Price = 1800000, Area = "45m²", Capacity = 2, Img = "https://hiddencharmresort.com/image-data/1920-1280/hiddench…upload/images/phong-nghi/Spacious-Deluxe/Deluxe-Double_3.jpg" },
+                                new { Name = "Diamond Suite", Price = 2000000, Area = "40m²", Capacity = 4, Img = "https://marinahotel.vn/upload/attachment/3102deluxe-twin-1.jpg" },
+                                new { Name = "Aurora Luxe", Price = 2200000, Area = "47m²", Capacity = 2, Img = "https://ezcloud.vn/wp-content/uploads/2023/03/can-phong-deluxe.webp" },
+                                new { Name = "Opal Serenity", Price = 2500000, Area = "46m²", Capacity = 2, Img = "https://aftavietnam.com.vn/wp-content/uploads/2024/01/phong-deluxe-la-gi-co-nen-chon-phong-deluxe-khong-22960-7.jpg" }
+                            };
+                            }
+                            else if (type.ten_loai.Contains("Biển") || type.ten_loai.Contains("HuongBien") || type.type_id == 3)
+                            {
+                                defaultSubRooms = new List<dynamic> {
+new { Name = "Ocean Pearl", Price = 2000000, Area = "35m²", Capacity = 2, Img = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkPbTJ9iaShfU1TS_sjVcUXBZXdnN7uikr07ya0d7YTw&s=10" },
+                                new { Name = "Azure Horizon", Price = 2200000, Area = "38m²", Capacity = 2, Img = "https://phuquoc.regenthotels.com/sites/rpq/files/styles/wid…tes-villas/Regent%20Phu%20Quoc%202026%2001.jpg?itok=TcB8_4XM" },
+                                new { Name = "Blue Serenity", Price = 2400000, Area = "45m²", Capacity = 4, Img = "https://www.navadahotel.com/FileStorage/Room/Thumbnail/DSC_9377-HDR.jpg" },
+                                new { Name = "Sea of Stars", Price = 2600000, Area = "41m²", Capacity = 2, Img = "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/227/2026/08/10080318/Copy-of-2.jpg" },
+                                new { Name = "Coral Dream", Price = 2800000, Area = "47m²", Capacity = 2, Img = "https://vinastay.com/FILES/source/hotels/Vinpearl%20Resort%…/Phong-deluxe-huong-bien-Vinpearl-Resort-Nha-Trang%20(3).jpg" },
+                                new { Name = "Ocean Whisper", Price = 3000000, Area = "41m²", Capacity = 2, Img = "https://www.vietnambooking.com/wp-content/uploads/2023/08/khach-san-phu-quoc-view-dep-nhat-4.jpg" }
+                            };
+                            }
+                            else if (type.ten_loai.Contains("Đình") || type.ten_loai.Contains("GiaDinh") || type.type_id == 4)
+                            {
+                                defaultSubRooms = new List<dynamic> {
+                                new { Name = "Family Paradise", Price = 3200000, Area = "60m²", Capacity = 5, Img = "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80" },
+                                new { Name = "Family Suite Haven", Price = 3500000, Area = "65m²", Capacity = 6, Img = "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80" }
+                            };
+                            }
+                            else if (type.ten_loai.Contains("Suite") || type.ten_loai.Contains("Suit") || type.type_id == 5)
+                            {
+                                defaultSubRooms = new List<dynamic> {
+                                new { Name = "Presidential Suite", Price = 4500000, Area = "80m²", Capacity = 2, Img = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" },
+                                new { Name = "Imperial Suite", Price = 5000000, Area = "90m²", Capacity = 4, Img = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80" }
+                            };
+                            }
+                            else if (type.ten_loai.Contains("Cấp") || type.ten_loai.Contains("CaoCap") || type.type_id == 6)
+                            {
+                                defaultSubRooms = new List<dynamic> {
+                                new { Name = "Penthouse Luxury", Price = 6000000, Area = "120m²", Capacity = 4, Img = "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" },
+                                new { Name = "Royal Crown Villa", Price = 7500000, Area = "150m²", Capacity = 6, Img = "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80" }
+                            };
+                            }
+                            else
+                            {
+                                defaultSubRooms = new List<dynamic> {
+                                new { Name = type.ten_loai + " - Phòng 101", Price = type.gia_tien ?? 1200000, Area = "35m²", Capacity = 2, Img = "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80" }
+                            };
+                            }
+
+                            // LOẠI BỎ TỪ "Phòng " THỪA ĐỂ TRÁNH LẶP THÀNH "Phòng Phòng..."
+                            string cleanTypeName = type.ten_loai.StartsWith("Phòng ", StringComparison.OrdinalIgnoreCase)
+                                ? type.ten_loai.Substring(6)
+                                : type.ten_loai;
+
+                            var activeSubRoom = defaultSubRooms.FirstOrDefault(sr => isTargetType && customName == sr.Name) ?? defaultSubRooms.First();
+
+                            string displayImg = (isTargetType && !string.IsNullOrEmpty(customImage)) ? customImage : activeSubRoom.Img;
+                            string displayArea = (isTargetType && !string.IsNullOrEmpty(customArea)) ? (customArea.Contains("m") ? customArea : customArea + "m²") : activeSubRoom.Area;
+                            string displayCapacity = (isTargetType && !string.IsNullOrEmpty(customCapacity)) ? customCapacity : activeSubRoom.Capacity.ToString();
+                            decimal numericPrice = (isTargetType && !string.IsNullOrEmpty(customPrice)) ? decimal.Parse(System.Text.RegularExpressions.Regex.Replace(customPrice, @"[^\d]", "")) : (decimal)activeSubRoom.Price;
+
+                            int initialQty = isTargetType ? 1 : 0;
+
+                            <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
+                                <div class="card-body p-4">
+                                    <div class="row g-3">
+                                        <div class="col-md-5">
+                                            <img src="@displayImg" class="room-img shadow-sm mb-3 room-card-img-@type.type_id" alt="@cleanTypeName" />
+                                            <div class="bg-light p-3 rounded-3 border small mb-2">
+                                                <div class="mb-2"><i class="bi bi-arrows-angle text-purple me-2"></i><strong>Diện tích:</strong> <span class="room-card-area-@type.type_id">@displayArea</span></div>
+                                                <div class="mb-2"><i class="bi bi-door-closed text-purple me-2"></i><strong>Giường:</strong> @(type.giuong ?? "1 Giường đôi")</div>
+                                                <div><i class="bi bi-eye text-purple me-2"></i><strong>Hướng view:</strong> @(type.view_phong ?? "Hướng phố")</div>
+                                            </div>
+
+                                            <button type="button" class="btn btn-outline-purple btn-sm w-100 btn-view-detail"
+                                                    data-typeid="@type.type_id"
+                                                    data-title="Phòng @cleanTypeName"
+                                                    data-area="@displayArea"
+                                                    data-bed="@(type.giuong ?? "1 Giường đôi")"
+                                                    data-view="@(type.view_phong ?? "Hướng phố")"
+                                                    data-capacity="@displayCapacity"
+                                                    data-image="@displayImg">
+                                                <i class="bi bi-info-circle me-1"></i>Xem thêm thông tin phòng
+                                            </button>
+                                        </div>
+
+                                        <div class="col-md-7 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <!-- TIÊU ĐỀ KHÔNG BỊ LẶP TỪ -->
+                                                <h4 class="fw-bold text-purple mb-1">Phòng @cleanTypeName</h4>
+                                                <p class="text-success small fw-bold mb-2">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>Bao gồm bữa sáng miễn phí
+                                                </p>
+
+                                                <div class="bg-light p-3 rounded-3 mb-3 border">
+                                                    <span class="fs-4 fw-bold text-danger room-card-price-@type.type_id">@numericPrice.ToString("N0")đ / đêm</span>
+                                                    <span class="text-muted small"> (Tối đa <span class="room-card-cap-@type.type_id">@displayCapacity</span> người)</span>
+                                                </div>
+
+                                                <!-- DROPDOWN CHỌN PHÒNG CỤ THỂ -->
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold text-dark small mb-1"><i class="bi bi-house-door-fill text-purple me-1"></i>Chọn phòng cụ thể thuộc loại này:</label>
+                                                    <select class="form-select form-select-sm specific-room-select border-purple" data-typeid="@type.type_id">
+                                                        @foreach (var sr in defaultSubRooms)
+                                                        {
+                                                            bool isSelected = (isTargetType && customName == sr.Name);
+                                                            <option value="@sr.Name"
+                                                                    data-price="@sr.Price"
+                                                                    data-area="@sr.Area"
+                                                                    data-capacity="@sr.Capacity"
+                                                                    data-img="@sr.Img"
+                                                                    @(isSelected ? "selected" : "")>
+                                                                Phòng @sr.Name — (@(((decimal)sr.Price).ToString("N0"))đ/đêm)
+                                                            </option>
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <strong class="d-block mb-1 text-dark small"><i class="bi bi-stars text-warning me-1"></i>Tiện nghi nổi bật:</strong>
+                                                    <div class="d-flex flex-wrap">
+                                                        <span class="amenity-badge"><i class="bi bi-wifi me-1"></i>Wifi miễn phí</span>
+                                                        <span class="amenity-badge"><i class="bi bi-snow me-1"></i>Điều hòa</span>
+                                                        <span class="amenity-badge"><i class="bi bi-droplet me-1"></i>Phòng tắm riêng</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- DROPDOWN CHỌN SỐ LƯỢNG PHÒNG -->
+                                    <div class="mt-3 pt-3 border-top">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold text-dark mb-1"><i class="bi bi-door-open me-1"></i>Chọn số lượng phòng:</label>
+                                                <select class="form-select room-qty-select fw-bold border-purple" data-typeid="@type.type_id">
+                                                    <option value="0" @(initialQty == 0 ? "selected" : "")>0 phòng (Không chọn)</option>
+                                                    <option value="1" @(initialQty == 1 ? "selected" : "")>1 phòng</option>
+                                                    <option value="2" @(initialQty == 2 ? "selected" : "")>2 phòng</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mt-2 mt-md-0">
+                                                <small class="text-muted d-block">Khách sạn hiện còn <strong class="text-purple">@Math.Max(2, roomsInType.Count) phòng trống</strong> cho loại phòng này.</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- CHECKBOX ẨN ĐỒNG BỘ GIÁ -->
+                                        <div class="d-none room-checkbox-group-@type.type_id">
+                                            <input type="checkbox" class="room-checkbox" name="selectedRooms" value="P_@type.type_id"
+                                                   data-roomid="P_@type.type_id"
+                                                   data-typeid="@type.type_id"
+                                                   data-typename="Phòng @cleanTypeName"
+                                                   data-subname="@activeSubRoom.Name"
+                                                   data-price="@numericPrice"
+                                                   id="chk_@type.type_id" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    <!-- KHUNG DỊCH VỤ ĐI KÈM -->
+                    <div class="card shadow-sm border-0 rounded-3 overflow-hidden mb-4">
+                        <div class="card-header bg-purple text-white p-3">
+                            <h5 class="mb-0 fw-bold"><i class="bi bi-concierge-bell me-2"></i>DỊCH VỤ ĐI KÈM (TÙY CHỌN)</h5>
+                        </div>
+                        <div class="card-body p-4 bg-white">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="service-card p-3 rounded-3 d-flex align-items-center justify-content-between">
+                                        <div class="form-check m-0">
+                                            <input class="form-check-input service-checkbox" type="checkbox" value="300000" data-name="Đưa đón sân bay 2 chiều" id="srv_1" style="transform: scale(1.1); cursor: pointer;" />
+                                            <label class="form-check-label fw-bold text-dark ms-1" for="srv_1" style="cursor: pointer;">🚌 Đưa đón sân bay 2 chiều</label>
+                                        </div>
+                                        <span class="badge bg-purple px-2 py-1">300.000 đ</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="service-card p-3 rounded-3 d-flex align-items-center justify-content-between">
+                                        <div class="form-check m-0">
+                                            <input class="form-check-input service-checkbox" type="checkbox" value="150000" data-name="Buffet sáng cao cấp" id="srv_2" style="transform: scale(1.1); cursor: pointer;" />
+                                            <label class="form-check-label fw-bold text-dark ms-1" for="srv_2" style="cursor: pointer;">🍳 Buffet sáng đặc biệt</label>
+                                        </div>
+                                        <span class="badge bg-purple px-2 py-1">150.000 đ</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="service-card p-3 rounded-3 d-flex align-items-center justify-content-between">
+                                        <div class="form-check m-0">
+                                            <input class="form-check-input service-checkbox" type="checkbox" value="500000" data-name="Trọn gói Spa & Massage" id="srv_3" style="transform: scale(1.1); cursor: pointer;" />
+                                            <label class="form-check-label fw-bold text-dark ms-1" for="srv_3" style="cursor: pointer;">💆 Trọn gói Spa & Massage</label>
+                                        </div>
+                                        <span class="badge bg-purple px-2 py-1">500.000 đ</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="service-card p-3 rounded-3 d-flex align-items-center justify-content-between">
+                                        <div class="form-check m-0">
+                                            <input class="form-check-input service-checkbox" type="checkbox" value="120000" data-name="Thuê xe máy (24h)" id="srv_4" style="transform: scale(1.1); cursor: pointer;" />
+                                            <label class="form-check-label fw-bold text-dark ms-1" for="srv_4" style="cursor: pointer;">🛵 Thuê xe máy (24h)</label>
+                                        </div>
+                                        <span class="badge bg-purple px-2 py-1">120.000 đ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CỘT PHẢI: TÓM TẮT ĐẶT PHÒNG -->
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 rounded-3 h-100">
+                        <div class="card-header bg-light p-3 border-bottom">
+                            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-receipt me-2"></i>Tóm Tắt Đặt Phòng</h5>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="bg-light p-3 rounded-3 border mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-secondary fw-semibold">Thời gian lưu trú:</span>
+                                        <span class="badge bg-purple px-3 py-2 fs-6 fw-bold" id="disp_nights">1 đêm</span>
+                                    </div>
+                                </div>
+
+                                <div class="border-top border-bottom py-3 mb-3">
+                                    <strong class="d-block mb-2 text-dark">Chi tiết lựa chọn:</strong>
+                                    <div id="selected_rooms_list" class="small text-muted mb-2">
+                                        <em>Vui lòng chọn số lượng phòng bên trái.</em>
+                                    </div>
+                                    <div id="selected_services_list" class="small text-muted border-top pt-2 d-none">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 p-3 bg-light rounded-3 border">
+                                    <label class="form-label fw-bold text-dark small mb-2"><i class="bi bi-tag-fill text-purple me-1"></i>Mã Giảm Giá / Ưu Đãi</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" id="coupon_code" class="form-control text-uppercase" placeholder="Mã: FIRSTBOOK, HE2026..." />
+                                        <button type="button" id="btn_apply_coupon" class="btn btn-purple px-3">Áp dụng</button>
+                                    </div>
+                                    <div id="coupon_msg" class="small mt-1"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="p-3 bg-light rounded-3 border mb-3">
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Tạm tính:</span>
+                                        <span id="disp_subtotal" class="fw-bold text-dark">0 VNĐ</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-success fw-bold mb-2 d-none" id="row_discount">
+                                        <span>Ưu đãi giảm giá:</span>
+                                        <span id="disp_discount">-0 VNĐ</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                                        <span class="fw-bold text-dark">Tổng thanh toán:</span>
+                                        <span class="fs-4 fw-bold text-danger" id="disp_total">0 VNĐ</span>
+                                    </div>
+                                    <input type="hidden" id="tong_tien" name="tong_tien" value="0" />
+                                </div>
+                                <button type="submit" class="btn btn-purple w-100 py-3 shadow fs-6 fw-bold rounded-3">
+                                    <i class="bi bi-check-circle-fill me-2"></i>XÁC NHẬN ĐẶT PHÒNG
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+
+    <!-- MODAL CHI TIẾT PHÒNG -->
+    <div class="modal fade" id="roomDetailModal" tabindex="-1" aria-labelledby="roomDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-purple text-white p-3">
+                    <h5 class="modal-title fw-bold" id="roomDetailModalLabel"><i class="bi bi-info-circle me-2"></i>Thông tin chi tiết phòng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4 mb-3">
+                        <div class="col-md-6">
+                            <img id="modal_room_img_main" src="" class="w-100 rounded-3 shadow-sm mb-2" style="height: 230px; object-fit: cover;" />
+                            <div class="d-flex gap-2 overflow-auto" id="modal_thumb_list"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h4 class="fw-bold text-purple mb-2" id="modal_room_title">[Tên phòng]</h4>
+                            <div class="small text-muted mb-3 bg-light p-3 rounded-3 border">
+                                <div class="mb-1"><i class="bi bi-door-closed text-purple me-1"></i> <strong>Giường:</strong> <span id="modal_room_bed">--</span></div>
+                                <div class="mb-1"><i class="bi bi-arrows-angle text-purple me-1"></i> <strong>Diện tích:</strong> <span id="modal_room_area">--</span></div>
+                                <div class="mb-1"><i class="bi bi-eye text-purple me-1"></i> <strong>Hướng view:</strong> <span id="modal_room_view">--</span></div>
+                                <div class="mb-1"><i class="bi bi-people text-purple me-1"></i> <strong>Sức chứa tiêu chuẩn:</strong> <span id="modal_room_capacity">--</span></div>
+                            </div>
+                            <p class="small text-secondary mb-0" id="modal_room_desc">Mô tả chi tiết phòng...</p>
+                        </div>
+                    </div>
+                    <hr />
+                    <div>
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-stars text-warning me-1"></i>Trang thiết bị & Tiện ích trong phòng</h6>
+                        <div class="row g-2 small text-dark" id="modal_amenities_grid"></div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light p-3">
+                    <button type="button" class="btn btn-purple px-4" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkinInput = document.getElementById("ngay_checkin");
+        const checkoutInput = document.getElementById("ngay_checkout");
+        const qtySelects = document.querySelectorAll(".room-qty-select");
+        const specificSelects = document.querySelectorAll(".specific-room-select");
+        const serviceCheckboxes = document.querySelectorAll(".service-checkbox");
+
+        const dispNights = document.getElementById("disp_nights");
+        const selectedRoomsList = document.getElementById("selected_rooms_list");
+        const selectedServicesList = document.getElementById("selected_services_list");
+
+        const dispSubtotal = document.getElementById("disp_subtotal");
+        const dispDiscount = document.getElementById("disp_discount");
+        const rowDiscount = document.getElementById("row_discount");
+        const dispTotal = document.getElementById("disp_total");
+        const tongTienHidden = document.getElementById("tong_tien");
+
+        const phoneInput = document.getElementById("so_dien_thoai");
+        const couponInput = document.getElementById("coupon_code");
+        const btnApplyCoupon = document.getElementById("btn_apply_coupon");
+        const couponMsg = document.getElementById("coupon_msg");
+
+        const vnf_regex = /^(0|\+84)[35789][0-9]{8}$/;
+        let discountPercent = 0;
+
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        if (checkinInput && checkoutInput) {
+            checkinInput.value = today.toISOString().split('T')[0];
+            checkoutInput.value = tomorrow.toISOString().split('T')[0];
+        }
+
+        // ĐỒNG BỘ DỮ LIỆU TỰ ĐỘNG KHI CHỌN PHÒNG CỤ THỂ
+        specificSelects.forEach(select => {
+            select.addEventListener("change", function () {
+                const typeId = this.getAttribute("data-typeid");
+                const opt = this.options[this.selectedIndex];
+
+                const subName = opt.value;
+                const price = parseFloat(opt.getAttribute("data-price"));
+                const area = opt.getAttribute("data-area");
+                const capacity = opt.getAttribute("data-capacity");
+                const img = opt.getAttribute("data-img");
+
+                // Cập nhật thẻ giao diện
+                const cardImg = document.querySelector(`.room-card-img-${typeId}`);
+                if (cardImg) cardImg.src = img;
+
+                const cardArea = document.querySelector(`.room-card-area-${typeId}`);
+                if (cardArea) cardArea.innerText = area;
+const cardCap = document.querySelector(`.room-card-cap-${typeId}`);
+                if (cardCap) cardCap.innerText = capacity;
+
+                const cardPrice = document.querySelector(`.room-card-price-${typeId}`);
+                if (cardPrice) cardPrice.innerText = price.toLocaleString('vi-VN') + "đ / đêm";
+
+                // Cập nhật checkbox ẩn
+                const cb = document.querySelector(`#chk_${typeId}`);
+                if (cb) {
+                    cb.setAttribute("data-subname", subName);
+                    cb.setAttribute("data-price", price);
+                }
+
+                // Cập nhật nút xem chi tiết
+                const btnDetail = document.querySelector(`.btn-view-detail[data-typeid="${typeId}"]`);
+                if (btnDetail) {
+                    btnDetail.setAttribute("data-title", "Phòng " + subName);
+                    btnDetail.setAttribute("data-area", area);
+                    btnDetail.setAttribute("data-capacity", capacity);
+                    btnDetail.setAttribute("data-image", img);
+                }
+
+                updateSummary();
+            });
+        });
+
+        function syncCheckboxes() {
+            qtySelects.forEach(select => {
+                const typeId = select.getAttribute("data-typeid");
+                const qty = parseInt(select.value) || 0;
+                const cb = document.querySelector(`#chk_${typeId}`);
+
+                if (cb) {
+                    cb.checked = qty > 0;
+                }
+            });
+            updateSummary();
+        }
+
+        qtySelects.forEach(select => select.addEventListener("change", syncCheckboxes));
+
+        if (btnApplyCoupon) {
+            btnApplyCoupon.addEventListener("click", function () {
+                const phone = phoneInput ? phoneInput.value.trim() : "";
+                const code = couponInput ? couponInput.value.trim() : "";
+
+                if (!phone || !vnf_regex.test(phone)) {
+                    couponMsg.className = "small mt-1 text-danger fw-bold";
+                    couponMsg.innerText = "✕ Số điện thoại không hợp lệ!";
+                    phoneInput.focus();
+                    return;
+                }
+
+                couponMsg.className = "small mt-1 text-primary";
+                couponMsg.innerText = "Đang kiểm tra...";
+
+                const formData = new FormData();
+                formData.append("so_dien_thoai", phone);
+                formData.append("coupon_code", code);
+
+                fetch('@Url.Action("CheckDiscount", "Bookings")', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        discountPercent = data.discountPercent / 100;
+                        couponMsg.className = "small mt-1 text-success fw-bold";
+                        couponMsg.innerText = data.message;
+} else {
+                        discountPercent = 0;
+                        couponMsg.className = "small mt-1 text-danger fw-bold";
+                        couponMsg.innerText = data.message;
+                    }
+                    updateSummary();
+                })
+                .catch(error => {
+                    discountPercent = 0;
+                    couponMsg.className = "small mt-1 text-danger";
+                    couponMsg.innerText = "Lỗi kết nối!";
+                    updateSummary();
+                });
+            });
+        }
+
+        function updateSummary() {
+            const checkin = new Date(checkinInput.value);
+            const checkout = new Date(checkoutInput.value);
+            let nights = 1;
+
+            if (checkin && checkout && checkout > checkin) {
+                const diffTime = Math.abs(checkout - checkin);
+                nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            }
+            dispNights.innerText = nights + " đêm";
+
+            let selectedRoomsHTML = "";
+            let roomTotalPerNight = 0;
+            let roomCount = 0;
+
+            const allCheckedRooms = document.querySelectorAll(".room-checkbox:checked");
+            allCheckedRooms.forEach(cb => {
+                roomCount++;
+                const typeId = cb.getAttribute("data-typeid");
+                const typeName = cb.getAttribute("data-typename");
+                const subName = cb.getAttribute("data-subname");
+                const price = parseFloat(cb.getAttribute("data-price")) || 0;
+
+                const qtySelect = document.querySelector(`.room-qty-select[data-typeid="${typeId}"]`);
+                const qty = qtySelect ? parseInt(qtySelect.value) : 1;
+
+                const itemTotal = price * qty;
+                roomTotalPerNight += itemTotal;
+
+                selectedRoomsHTML += `<div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>• <strong>${subName}</strong> (${typeName} x${qty})</span>
+                    <span class="fw-bold text-dark">${itemTotal.toLocaleString('vi-VN')} đ</span>
+                </div>`;
+            });
+
+            selectedRoomsList.innerHTML = roomCount === 0 ? '<em>Vui lòng chọn số lượng phòng bên trái.</em>' : selectedRoomsHTML;
+
+            let servicesTotal = 0;
+            let selectedServicesHTML = "";
+            let serviceCount = 0;
+
+            serviceCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    serviceCount++;
+                    const srvName = cb.getAttribute("data-name");
+                    const srvPrice = parseFloat(cb.value) || 0;
+                    servicesTotal += srvPrice;
+
+                    selectedServicesHTML += `<div class="d-flex justify-content-between align-items-center mb-1 text-purple">
+                        <span>+ ${srvName}</span>
+<span class="fw-bold">${srvPrice.toLocaleString('vi-VN')} đ</span>
+                    </div>`;
+                }
+            });
+
+            if (serviceCount > 0) {
+                selectedServicesList.classList.remove("d-none");
+                selectedServicesList.innerHTML = selectedServicesHTML;
+            } else {
+                selectedServicesList.classList.add("d-none");
+                selectedServicesList.innerHTML = "";
+            }
+
+            const totalRoomPrice = roomTotalPerNight * nights;
+            const subTotal = totalRoomPrice + servicesTotal;
+            const discountAmount = subTotal * discountPercent;
+            const grandTotal = subTotal - discountAmount;
+
+            dispSubtotal.innerText = subTotal.toLocaleString('vi-VN') + " VNĐ";
+
+            if (discountAmount > 0) {
+                rowDiscount.classList.remove("d-none");
+                dispDiscount.innerText = "-" + discountAmount.toLocaleString('vi-VN') + " VNĐ";
+            } else {
+                rowDiscount.classList.add("d-none");
+            }
+
+            dispTotal.innerText = grandTotal.toLocaleString('vi-VN') + " VNĐ";
+            tongTienHidden.value = grandTotal;
+        }
+
+        serviceCheckboxes.forEach(cb => cb.addEventListener("change", updateSummary));
+        checkinInput.addEventListener("change", updateSummary);
+        checkoutInput.addEventListener("change", updateSummary);
+
+        const modalElement = document.getElementById('roomDetailModal');
+        const roomDetailModal = new bootstrap.Modal(modalElement);
+
+        document.querySelectorAll('.btn-view-detail').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const title = this.getAttribute('data-title');
+                const area = this.getAttribute('data-area');
+                const bed = this.getAttribute('data-bed');
+                const dataView = this.getAttribute('data-view');
+                const capacity = this.getAttribute('data-capacity');
+                const imgUrl = this.getAttribute('data-image');
+
+                document.getElementById('modal_room_title').innerText = "[" + title + "]";
+                document.getElementById('modal_room_area').innerText = area;
+                document.getElementById('modal_room_bed').innerText = bed;
+                document.getElementById('modal_room_view').innerText = dataView;
+                document.getElementById('modal_room_capacity').innerText = capacity + " người lớn";
+
+                document.getElementById('modal_room_desc').innerText =
+                    `${title} tại Moonlight Hotel được thiết kế hiện đại, tinh tế với diện tích ${area}, hướng nhìn ${dataView} thoáng đãng. Đầy đủ trang thiết bị tiện nghi cao cấp mang đến trải nghiệm thư giãn trọn vẹn.`;
+
+                const imgMain = document.getElementById('modal_room_img_main');
+const thumbList = document.getElementById('modal_thumb_list');
+                thumbList.innerHTML = "";
+
+                if (imgUrl) {
+                    imgMain.src = imgUrl;
+
+                    const thumb = document.createElement('img');
+                    thumb.src = imgUrl;
+                    thumb.className = 'rounded border thumbnail-img';
+                    thumb.style.cssText = 'width: 65px; height: 48px; object-fit: cover; cursor: pointer; border-color: #5c3c92 !important;';
+                    thumb.addEventListener('click', function () { imgMain.src = this.src; });
+                    thumbList.appendChild(thumb);
+                }
+
+                const grid = document.getElementById('modal_amenities_grid');
+                grid.innerHTML = "";
+                const amenitiesList = [
+                    "Điều hòa 2 chiều", "Wifi tốc độ cao", "TV LED Smart HD",
+                    "Két an toàn", "Bàn làm việc", "Tủ lạnh Mini Bar",
+                    "Máy sấy tóc", "Phòng tắm riêng"
+                ];
+
+                amenitiesList.forEach(item => {
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-md-4 col-lg-3 d-flex align-items-center mb-2';
+                    col.innerHTML = `<i class="bi bi-check-lg text-success me-2 fs-6 fw-bold"></i><span>${item}</span>`;
+                    grid.appendChild(col);
+                });
+
+                roomDetailModal.show();
+            });
+        });
+
+        const bookingForm = document.getElementById("bookingForm");
+        if (bookingForm) {
+            bookingForm.addEventListener("submit", function (e) {
+                const phone = phoneInput ? phoneInput.value.trim() : "";
+
+                if (!vnf_regex.test(phone)) {
+                    e.preventDefault();
+                    alert("⚠️ Số điện thoại không hợp lệ!\nVui lòng nhập đúng 10 chữ số SĐT Việt Nam.");
+                    phoneInput.focus();
+                    return false;
+                }
+
+                const checkedRooms = document.querySelectorAll(".room-checkbox:checked");
+                if (checkedRooms.length === 0) {
+                    e.preventDefault();
+                    alert("⚠️ Vui lòng chọn ít nhất 1 phòng trước khi bấm Xác nhận!");
+                }
+            });
+        }
+
+        syncCheckboxes();
+    });
+    </script>

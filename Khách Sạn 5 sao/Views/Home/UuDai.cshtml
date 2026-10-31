@@ -1,0 +1,171 @@
+﻿
+@{
+    ViewBag.Title = "UuDai";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+<link rel="stylesheet" href="~/Content/StyleUD.css" />
+<div class="offer-page">
+
+    <section class="offer-banner">
+        <h1>ƯU ĐÃI ĐẶC BIỆT</h1>
+        <p>Tận hưởng kỳ nghỉ tuyệt vời với những lựa chọn hấp dẫn</p>
+    </section>
+
+    <section class="offer-intro">
+        <h2>Ưu Đãi Dành Cho Bạn</h2>
+        <p>
+            Khám phá những chương trình ưu đãi dành cho kỳ nghỉ,
+            lựa chọn phòng nghỉ phù hợp và liên hệ với chúng tôi
+            để được tư vấn chi tiết về điều kiện áp dụng.
+        </p>
+    </section>
+
+    <section class="offer-list">
+
+        <div class="offer-card">
+            <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80"
+                 alt="Ưu đãi phòng nghỉ">
+
+            <div class="offer-content">
+                <span class="offer-tag">ƯU ĐÃI LƯU TRÚ</span>
+                <h3>Nghỉ Dưỡng Trọn Vẹn</h3>
+                <p>
+                    Lựa chọn phòng nghỉ phù hợp cho chuyến đi của bạn.
+                    Liên hệ để được tư vấn mức giá và ưu đãi hiện có.
+                </p>
+
+                <div class="offer-time">
+                    <strong>Thời hạn:</strong> Vui lòng liên hệ
+                </div>
+
+                <a href="@Url.Action("PhongNghi", "Home")" class="offer-button">
+                    Xem phòng nghỉ
+                </a>
+            </div>
+        </div>
+
+        <div class="offer-card">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80"
+                 alt="Ưu đãi ẩm thực">
+
+            <div class="offer-content">
+                <span class="offer-tag">ẨM THỰC</span>
+                <h3>Khám Phá Hương Vị</h3>
+                <p>
+                    Tìm hiểu các lựa chọn ẩm thực và chương trình
+                    dành cho khách lưu trú tại khách sạn.
+                </p>
+
+                <div class="offer-time">
+                    <strong>Thời hạn:</strong> Vui lòng liên hệ
+                </div>
+
+                <a href="@Url.Action("AmThuc", "Home")" class="offer-button">
+                    Khám phá Ẩm thực
+                </a>
+            </div>
+        </div>
+
+        <div class="offer-card">
+            <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80"
+                 alt="Ưu đãi thư giãn">
+
+            <div class="offer-content">
+                <span class="offer-tag">THƯ GIÃN</span>
+                <h3>Tận Hưởng Kỳ Nghỉ</h3>
+                <p>
+                    Khám phá các tiện ích và dịch vụ có thể giúp
+                    kỳ nghỉ của bạn thêm thoải mái.
+                </p>
+
+                <div class="offer-time">
+                    <strong>Thời hạn:</strong> Vui lòng liên hệ
+                </div>
+
+                <a href="@Url.Action("TienIch", "Home")" class="offer-button">
+                    Xem tiện ích
+                </a>
+            </div>
+        </div>
+
+        <div class="offer-card">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80"
+                 alt="Ưu đãi kỳ nghỉ dài ngày">
+
+            <div class="offer-content">
+                <span class="offer-tag">KỲ NGHỈ DÀI NGÀY</span>
+                <h3>Thư Giãn Lâu Hơn</h3>
+                <p>
+                    Trao đổi với khách sạn về nhu cầu lưu trú nhiều ngày
+                    để tìm hiểu lựa chọn phù hợp với kế hoạch của bạn.
+                </p>
+
+                <div class="offer-time">
+                    <strong>Thời hạn:</strong> Vui lòng liên hệ
+                </div>
+
+                <a href="@Url.Action("Contact", "Home")" class="offer-button">
+                    Nhận tư vấn
+                </a>
+            </div>
+        </div>
+
+        <div class="offer-card">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80"
+                 alt="Ưu đãi nhà hàng">
+
+            <div class="offer-content">
+                <span class="offer-tag">ẨM THỰC & SỰ KIỆN</span>
+                <h3>Khoảnh Khắc Đáng Nhớ</h3>
+                <p>
+                    Liên hệ để tìm hiểu các lựa chọn phù hợp cho
+                    buổi gặp mặt, bữa tiệc hoặc dịp đặc biệt.
+                </p>
+
+                <div class="offer-time">
+                    <strong>Thời hạn:</strong> Vui lòng liên hệ
+                </div>
+
+                <a href="@Url.Action("DichVu", "Home")" class="offer-button">
+                    Xem dịch vụ
+                </a>
+            </div>
+        </div>
+
+        <div class="offer-card">
+            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"
+                 alt="Tư vấn ưu đãi khách sạn">
+
+            <div class="offer-content">
+                <span class="offer-tag">TƯ VẤN</span>
+                <h3>Ưu Đãi Theo Nhu Cầu</h3>
+                <p>
+                    Gửi yêu cầu về ngày lưu trú, số lượng khách và
+                    nhu cầu của bạn để được tư vấn thêm.
+                </p>
+
+                <div class="offer-time">
+                    <strong>Thời hạn:</strong> Liên hệ để biết chi tiết
+                </div>
+
+                <a href="@Url.Action("Contact", "Home")" class="offer-button">
+                    Liên hệ ngay
+                </a>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="offer-note">
+        <h2>Đừng Bỏ Lỡ Những Trải Nghiệm Tuyệt Vời</h2>
+        <p>
+            Liên hệ với chúng tôi để tìm hiểu chương trình ưu đãi,
+            điều kiện áp dụng và thông tin đặt phòng.
+        </p>
+
+        <a asp-controller="Home" asp-action="Contact"
+           class="offer-button">Nhận tư vấn</a>
+    </section>
+
+</div>
+

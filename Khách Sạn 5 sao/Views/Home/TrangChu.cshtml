@@ -1,0 +1,55 @@
+﻿
+@{
+    ViewBag.Title = "TrangChu";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+<section class="hotel-banner">
+    <div class="banner-content">
+        <h1>MOONLIGHT HOTEL</h1>
+        <p>Trải nghiệm nghỉ dưỡng tuyệt vời bên bờ biển</p>
+    </div>
+</section>
+
+<!-- Phần giới thiệu -->
+<section class="home-intro">
+    <h2>Chào mừng đến với Moonlight Hotel</h2>
+
+    <p>
+        Moonlight Hotel mang đến không gian nghỉ dưỡng
+        sang trọng, tiện nghi và dịch vụ tận tâm.
+        Chúng tôi mong muốn đem đến cho bạn những
+        trải nghiệm đáng nhớ trong mỗi chuyến đi.
+    </p>
+
+    <a href="#" class="intro-button">Tìm hiểu thêm</a>
+</section>
+
+<!-- Danh mục dịch vụ -->
+<section class="home-services">
+    <h2>Dịch vụ của chúng tôi</h2>
+
+    <div class="service-list">
+        <div class="service-item">
+            <a href="@Url.Action("PhongNghi", "Home")" class="service-button">
+                <h3>Phòng Nghỉ</h3>
+            </a>
+            <p>Không gian nghỉ ngơi thoải mái và tiện nghi.</p>
+        </div>
+
+        <div class="service-item">
+            <a href="@Url.Action("AmThuc", "Home")" class="service-button">
+                <h3>Ẩm Thực</h3>
+            </a>
+            <p>Thưởng thức các món ăn hấp dẫn.</p>
+        </div>
+
+        <div class="service-item">
+            <a href="@Url.Action("DichVu", "Home")" class="service-button">
+                <h3>Dịch Vụ</h3>
+            </a>
+            <p>Phục vụ chu đáo trong suốt kỳ nghỉ.</p>
+        </div>
+    </div>
+</section>
+
+

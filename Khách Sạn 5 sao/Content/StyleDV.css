@@ -1,0 +1,133 @@
+﻿.service-page {
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.service-banner {
+    height: 350px;
+    background: linear-gradient(rgba(35, 15, 55, 0.55), rgba(35, 15, 55, 0.55)), url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+    .service-banner h1 {
+        font-size: 42px;
+        letter-spacing: 4px;
+        margin-bottom: 15px;
+    }
+
+    .service-banner p {
+        font-size: 18px;
+    }
+
+.service-intro {
+    text-align: center;
+    max-width: 850px;
+    margin: 50px auto 35px;
+    padding: 0 20px;
+}
+
+    .service-intro h2 {
+        color: #563477;
+        font-size: 30px;
+        margin-bottom: 18px;
+    }
+
+    .service-intro p {
+        line-height: 1.8;
+        color: #666;
+    }
+
+.service-list {
+    max-width: 1150px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.service-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    transition: transform 0.3s;
+}
+
+    .service-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .service-card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+    }
+
+.service-card-content {
+    padding: 22px;
+}
+
+.service-card h3 {
+    color: #563477;
+    font-size: 21px;
+    margin: 0 0 12px;
+}
+
+.service-card p {
+    color: #666;
+    line-height: 1.7;
+    min-height: 80px;
+}
+
+.service-button {
+    display: inline-block;
+    background: #68418a;
+    color: white;
+    padding: 11px 22px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+    .service-button:hover {
+        background: #43235f;
+        color: white;
+    }
+
+.service-note {
+    background: #f5f0fa;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+    .service-note h2 {
+        color: #563477;
+        margin-bottom: 15px;
+    }
+
+    .service-note p {
+        color: #666;
+        line-height: 1.8;
+    }
+
+@media (max-width: 768px) {
+    .service-list {
+        grid-template-columns: 1fr;
+    }
+
+    .service-banner h1 {
+        font-size: 30px;
+    }
+
+    .service-banner {
+        height: 280px;
+    }
+}

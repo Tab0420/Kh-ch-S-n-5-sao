@@ -1,0 +1,71 @@
+﻿
+body {
+    background-color: #f8f9fa;
+}
+
+.bg-purple {
+    background-color: #5c3c92 !important;
+}
+
+.text-purple {
+    color: #5c3c92 !important;
+}
+
+.btn-purple {
+    background-color: #5c3c92;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+
+    .btn-purple:hover {
+        background-color: #4a2f77;
+        color: white;
+    }
+
+.btn-outline-purple {
+    color: #5c3c92;
+    border-color: #5c3c92;
+    font-weight: bold;
+}
+
+    .btn-outline-purple:hover {
+        background-color: #5c3c92;
+        color: white;
+    }
+
+.room-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.amenity-badge {
+    background-color: #f0ebf8;
+    color: #5c3c92;
+    font-size: 0.85rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.service-card {
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+    .service-card:hover {
+        border-color: #5c3c92;
+        background-color: #fcfaff;
+    }
+
+.thumbnail-img:hover {
+    border-color: #5c3c92 !important;
+    opacity: 0.8;
+}
+

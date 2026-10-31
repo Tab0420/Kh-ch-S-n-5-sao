@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title-MoonLight Hotel</title>
+    <link rel="stylesheet" href="~/Content/Mystyle.css" />
+    <link rel="stylesheet" href="~/Content/stylepro.css" />
+</head>
+<body>
+    <!-- Thanh menu chính -->
+    <header class="hotel-header">
+
+        <!-- Logo nhấn để về trang chủ -->
+        <div class="hotel-logo">
+            <a href="@Url.Action("TrangChu", "Home")">
+                <img src="~/images/moon.png" )"
+                     alt="Moonlight Hotel"
+                     class="hotel-logo-img" />
+                <h2>MOONLIGHT HOTEL</h2>
+            </a>
+        </div>
+
+        <nav class="hotel-nav">
+
+            <!-- Giới thiệu -->
+            <a href="#" id="btnGioiThieu">GIỚI THIỆU</a>
+
+            <!-- Phòng nghỉ -->
+            <div class="menu-item">
+                <a href="#">
+                    @Html.ActionLink("PHÒNG NGHỈ", "PhongNghi", "Home")
+                </a>
+                <div class="dropdown-menu">
+                    <a href="#">Phòng Superior</a>
+                    <a href="#">Phòng Deluxe</a>
+                    <a href="#">Phòng Hướng Biển</a>
+                    <a href="#">Phòng Gia Đình</a>
+                    <a href="#">Phòng Suite</a>
+                    <a href="#">Phòng Cao Cấp</a>
+                </div>
+            </div>
+
+            <!-- Tiện ích -->
+            <div class="menu-item">
+                <a href="#">
+                    @Html.ActionLink("TIỆN ÍCH", "TienIch", "Home")
+                </a>
+                <div class="dropdown-menu">
+                    <a href="#">Hồ Bơi</a>
+                    <a href="#">Phòng GYM</a>
+                    <a href="#">SPA & Thư Giản</a>
+                    <a href="#">Bữa Ăn Tại Phòng</a>
+                    <a href="#">Không Gian Nghỉ Dưỡng</a>
+                    <a href="#">Không Gian Sự Kiện</a>
+                </div>
+            </div>
+
+            <!-- Dịch vụ -->
+            <div class="menu-item">
+                <a href="#">
+                    @Html.ActionLink("DỊCH VỤ", "DichVu", "Home")
+                </a>
+                <div class="dropdown-menu">
+                    <a href="#">Đặt phòng</a>
+                    <a href="#">Dịch Vụ Nghỉ DƯỡng</a>
+                    <a href="#">Nhà Hàng & Ẩm Thực</a>
+                    <a href="#">Thể Thao & Giải Trí</a>
+                    <a href="#">Hỗ Trợ Khách Hàng</a>
+                    <a href="#">Tiệc & Sự Kiện</a>
+                </div>
+            </div>
+            <!-- Liên hệ -->
+            <a href="#lien-he">
+                @Html.ActionLink("LIÊN HỆ", "Contact", "Home")
+            </a>
+            <div class="menu-item">
+                <a href="#">
+                    @Html.ActionLink("ƯU ĐÃI", "UuDai", "Home")
+                </a>
+            </div>
+
+        </nav>
+
+        <!-- Nút đặt phòng -->
+        @Html.ActionLink("ĐẶT PHÒNG", "Index", "Bookings", null, new { @class = "booking-btn" })
+
+
+    </header>
+
+    <!-- Khung thông tin giới thiệu khách sạn -->
+    <div class="intro-box" id="khungGioiThieu">
+
+        <div class="intro-header">
+            <h2>KHÁCH SẠN MOONLIGHT HOTEL</h2>
+            <button type="button" id="btnDong">&times;</button>
+        </div>
+
+        <div class="intro-content">
+
+            <h3>Lịch sử hình thành và phát triển</h3>
+            <p>
+                Moonlight Hotel hướng đến việc mang đến cho khách hàng
+                không gian nghỉ dưỡng thoải mái, tiện nghi và những
+                trải nghiệm lưu trú đáng nhớ.
+            </p>
+            <h3>Không gian nghỉ dưỡng</h3>
+            <p>
+                Với phong cách thiết kế hiện đại, không gian ấm cúng
+                và hệ thống phòng nghỉ tiện nghi, khách sạn mong muốn
+                đáp ứng nhu cầu nghỉ dưỡng của nhiều đối tượng khách hàng.
+            </p>
+
+            <h3>Dịch vụ của khách sạn</h3>
+            <p>
+                Moonlight Hotel cung cấp các tiện ích và dịch vụ hỗ trợ
+                khách hàng, hướng đến sự thoải mái và thuận tiện
+                trong suốt thời gian lưu trú.
+            </p>
+
+            <h3>Sứ mệnh</h3>
+            <p>
+                Chúng tôi mong muốn mang đến sự hài lòng, dịch vụ chu đáo
+                và những kỷ niệm đáng nhớ trong mỗi chuyến đi.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- Ảnh nền chính -->
+    <section class="hotel-banner">
+        <div class="banner">
+            <img src="~/images/nha trang.jpg"
+                 alt="MOONLIGHT HOTEL" />
+        </div>
+        <div class="banner-content">
+            <h1>MOONLIGHT HOTEL</h1>
+            <p>Trải nghiệm nghỉ dưỡng tuyệt vời bên bờ biển</p>
+        </div>
+    </section>
+
+    <!-- Nội dung của từng trang -->
+    <div id="div-content">
+        @RenderBody()
+    </div>
+
+    <footer class="hotel-footer">
+        <div class="footer-container">
+
+            <!-- Cột 1: Logo và giới thiệu -->
+            <div class="footer-brand">
+                <a href="@Url.Action("TrangChu", "Home")"
+                   class="footer-logo">MOONLIGHT HOTEL</a>
+
+                <p>
+                    Trải nghiệm nghỉ dưỡng tuyệt vời
+                    bên bờ biển.
+                </p>
+            </div>
+
+            <!-- Cột 2: Liên hệ -->
+            <div class="footer-column">
+                <h3>LIÊN HỆ VỚI CHÚNG TÔI</h3>
+
+                <div class="footer-line"></div>
+
+                <p>ĐT: XXX 123 456</p>
+                <p>Email: moonlighthotel@gmail.com</p>
+                <p>Địa chỉ: Nha Trang, Khánh Hòa</p>
+
+                <div class="footer-social">
+                    <a href="#" title="Facebook">f</a>
+                    <a href="#" title="Instagram">◎</a>
+                    <a href="#" title="TikTok">♪</a>
+                </div>
+            </div>
+
+            <!-- Cột 3: Liên kết hữu ích -->
+            <div class="footer-column">
+                <h3>LIÊN KẾT HỮU ÍCH</h3>
+
+                <div class="footer-line"></div>
+
+                <a href="@Url.Action("TrangChu", "Home")">Trang chủ</a>
+                <a href="#">Giới thiệu khách sạn</a>
+                <a href="#">Chính sách bảo mật</a>
+                <a href="#">Điều khoản sử dụng</a>
+            </div>
+
+            <!-- Cột 4: Bản tin -->
+            <div class="footer-column">
+                <h3>BẢN TIN</h3>
+
+                <div class="footer-line"></div>
+
+                <p>ĐĂNG KÝ NHẬN TIN MỚI</p>
+
+                <form class="footer-form">
+                    <input type="email"
+                           placeholder="Nhập địa chỉ email..."
+                           aria-label="Địa chỉ email"
+                           required />
+
+                    <button type="submit">Đăng ký</button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Bản quyền -->
+        <div class="footer-bottom">
+            <p>© 2026 Moonlight Hotel. All rights reserved.</p>
+        </div>
+
+        <!-- Nút lên đầu trang -->
+        <a href="#" class="back-to-top"
+           aria-label="Lên đầu trang">⌃</a>
+    </footer>
+
+
+    <!-- JavaScript điều khiển khung giới thiệu -->
+    <script>
+        const btnGioiThieu = document.getElementById("btnGioiThieu");
+        const khungGioiThieu = document.getElementById("khungGioiThieu");
+        const btnDong = document.getElementById("btnDong");
+
+        // Nhấn GIỚI THIỆU để mở thông tin
+        btnGioiThieu.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            if (khungGioiThieu.style.display === "block") {
+                khungGioiThieu.style.display = "none";
+            } else {
+                khungGioiThieu.style.display = "block";
+            }
+        });
+
+        // Nhấn dấu X để đóng thông tin
+        btnDong.addEventListener("click", function () {
+            khungGioiThieu.style.display = "none";
+        });
+    </script>
+</body>
+</html>

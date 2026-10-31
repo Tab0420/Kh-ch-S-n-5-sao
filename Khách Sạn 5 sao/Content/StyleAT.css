@@ -1,0 +1,129 @@
+﻿.food-page {
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.food-banner {
+    min-height: 380px;
+    background: linear-gradient(rgba(35, 15, 55, 0.5), rgba(35, 15, 55, 0.6)), url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 30px;
+}
+
+    .food-banner h1 {
+        font-size: 48px;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+
+    .food-banner p {
+        font-size: 18px;
+    }
+
+.food-intro {
+    text-align: center;
+    padding: 45px 20px 20px;
+}
+
+    .food-intro h2 {
+        color: #63358b;
+        font-size: 30px;
+        margin-bottom: 15px;
+    }
+
+    .food-intro p {
+        max-width: 800px;
+        margin: auto;
+        line-height: 1.8;
+    }
+
+.food-list {
+    max-width: 1150px;
+    margin: 30px auto 60px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.food-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s;
+}
+
+    .food-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .food-card img {
+        width: 100%;
+        height: 230px;
+        object-fit: cover;
+        display: block;
+    }
+
+.food-content {
+    padding: 22px;
+}
+
+    .food-content h3 {
+        color: #63358b;
+        font-size: 21px;
+        margin-bottom: 12px;
+    }
+
+    .food-content p {
+        line-height: 1.7;
+        color: #555;
+    }
+
+.food-label {
+    color: #63358b;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.food-button {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 11px 20px;
+    background: #63358b;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+    .food-button:hover {
+        background: #492367;
+        color: white;
+    }
+
+.food-bottom {
+    background: #f4eef9;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+    .food-bottom h2 {
+        color: #63358b;
+        margin-bottom: 15px;
+    }
+
+@media (max-width: 768px) {
+    .food-list {
+        grid-template-columns: 1fr;
+    }
+
+    .food-banner h1 {
+        font-size: 34px;
+    }
+}

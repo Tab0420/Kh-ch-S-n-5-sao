@@ -1,0 +1,116 @@
+﻿@model Khách_Sạn_5_sao.Models.Booking
+
+@{
+    ViewBag.Title = "Chi TIết Đơn Đặt Phòng" + Model.booking_id;
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+<!-- CDN Bootstrap 5 & Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/Content/StyleDetails.css" />
+<div class="container my-5" style="max-width: 850px;">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+
+        <!-- HEADER -->
+        <div class="card-header bg-purple text-white p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1 fw-bold"><i class="bi bi-receipt-cutoff me-2"></i>CHI TIẾT ĐƠN ĐẶT PHÒNG #@Model.booking_id</h4>
+                <small class="opacity-75">Ngày khởi tạo đơn: @(Model.ngay_dat.HasValue ? Model.ngay_dat.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</small>
+            </div>
+            <span class="badge bg-light text-purple fs-6 px-3 py-2 fw-bold">@Model.trang_thai</span>
+        </div>
+
+        <div class="card-body p-4 bg-white">
+
+            <!-- THÔNG TIN KHÁCH HÀNG & THỜI GIAN -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <h6 class="fw-bold text-purple mb-3"><i class="bi bi-person-circle me-2"></i>THÔNG TIN KHÁCH HÀNG</h6>
+                        <p class="mb-2"><strong>Họ và tên:</strong> @(Model.User != null ? Model.User.ho_ten : "Khách vãng lai")</p>
+                        <p class="mb-2"><strong>Số điện thoại:</strong> @(Model.User != null ? Model.User.so_dien_thoai : "N/A")</p>
+                        <p class="mb-0"><strong>Email:</strong> @(Model.User != null ? Model.User.email : "N/A")</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <h6 class="fw-bold text-purple mb-3"><i class="bi bi-calendar-range me-2"></i>THỜI GIAN LƯU TRÚ</h6>
+                        <p class="mb-2"><strong>Check-in:</strong> <span class="text-success fw-bold">@(Model.ngay_checkin.HasValue ? Model.ngay_checkin.Value.ToString("dd/MM/yyyy") : "--")</span></p>
+                        <p class="mb-2"><strong>Check-out:</strong> <span class="text-danger fw-bold">@(Model.ngay_checkout.HasValue ? Model.ngay_checkout.Value.ToString("dd/MM/yyyy") : "--")</span></p>
+                        <p class="mb-0"><strong>Số lượng khách:</strong> @(Model.so_nguoi_lon ?? 2) Người lớn, @(Model.so_tre_em ?? 0) Trẻ em</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BẢNG DANH SÁCH PHÒNG ĐÃ CHỌN -->
+            <h6 class="fw-bold text-purple mb-3"><i class="bi bi-door-open me-2"></i>DANH SÁCH PHÒNG LƯU TRÚ</h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle text-center">
+                    <thead class="bg-light text-dark fw-bold">
+                        <tr>
+                            <th>STT</th>
+                            <th>LOẠI PHÒNG</th>
+                            <th>ĐƠN GIÁ / ĐÊM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Booking_Details != null && Model.Booking_Details.Any())
+                        {
+                            int index = 1;
+                            foreach (var item in Model.Booking_Details)
+                            {
+                                string typeName = item.Room != null && item.Room.Room_Types != null ? item.Room.Room_Types.ten_loai : "Phòng tiêu chuẩn";
+                                <tr>
+                                    <td>@index</td>
+                                    
+                                    <td class="fw-bold text-dark">@typeName</td>
+                                    <td class="text-danger fw-bold">@((item.don_gia ?? 0).ToString("N0")) VNĐ</td>
+                                </tr>
+                                index++;
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-muted">Không có thông tin chi tiết phòng.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TỔNG TIỀN VÀ GHI CHÚ -->
+            <div class="row align-items-center mb-4">
+                <div class="col-md-7">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <strong class="d-block text-secondary small mb-1">Ghi chú yêu cầu đặc biệt:</strong>
+                        <span class="text-dark">@(string.IsNullOrEmpty(Model.ghi_chu) ? "Không có ghi chú thêm." : Model.ghi_chu)</span>
+                    </div>
+                </div>
+                <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <span class="d-block text-secondary small fw-bold">TỔNG TIỀN THANH TOÁN</span>
+                        <span class="fs-3 fw-bold text-danger">@((Model.tong_tien ?? 0).ToString("N0")) VNĐ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THAO TÁC NÚT -->
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top no-print">
+                <a href="@Url.Action("Index", "Bookings")" class="btn btn-secondary px-4 fw-bold rounded-3">
+                    <i class="bi bi-arrow-left me-1"></i> Trở Lại Danh Sách
+                </a>
+                <div>
+                    <button onclick="window.print()" class="btn btn-outline-purple me-2 px-3 fw-bold rounded-3">
+                        <i class="bi bi-printer me-1"></i> In Hóa Đơn
+                    </button>
+                    <a href="@Url.Action("Edit", "Bookings", new { id = Model.booking_id })" class="btn btn-purple px-4 fw-bold rounded-3">
+                        <i class="bi bi-pencil-square me-1"></i> Chỉnh Sửa
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

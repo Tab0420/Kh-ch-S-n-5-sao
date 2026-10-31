@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewBag.Title = "DichVu";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+<link rel="stylesheet" href="~/Content/StyleDV.css" />
+<div class="service-page">
+
+    <section class="service-banner">
+        <h1>DỊCH VỤ KHÁCH SẠN</h1>
+        <p>Chu đáo trong từng trải nghiệm</p>
+    </section>
+
+    <section class="service-intro">
+        <h2>Dịch Vụ Của Chúng Tôi</h2>
+        <p>
+            Chúng tôi mang đến những dịch vụ tiện nghi và chuyên nghiệp,
+            giúp kỳ nghỉ của quý khách trở nên thoải mái, thuận tiện
+            và đáng nhớ. Đội ngũ nhân viên luôn sẵn sàng hỗ trợ quý khách
+            trong suốt thời gian lưu trú.
+        </p>
+    </section>
+
+    <section class="service-list">
+
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80"
+                 alt="Dịch vụ đặt phòng">
+            <div class="service-card-content">
+                <h3>Đặt Phòng</h3>
+                <p>
+                    Hỗ trợ khách hàng tìm kiếm phòng nghỉ phù hợp,
+                    cung cấp thông tin về loại phòng và thời gian lưu trú.
+                </p>
+                <a asp-controller="Home" asp-action="PhongNghi"
+                   class="service-button">Xem phòng</a>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=800&q=80"
+                 alt="Dịch vụ nghỉ dưỡng">
+            <div class="service-card-content">
+                <h3>Dịch Vụ Nghỉ Dưỡng</h3>
+                <p>
+                    Tận hưởng không gian nghỉ ngơi thư giãn,
+                    cùng những tiện nghi phục vụ nhu cầu của quý khách.
+                </p>
+                <a asp-controller="Home" asp-action="TienIch"
+                   class="service-button">Khám phá</a>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80"
+                 alt="Dịch vụ nhà hàng">
+            <div class="service-card-content">
+                <h3>Nhà Hàng & Ẩm Thực</h3>
+                <p>
+                    Khám phá các lựa chọn ẩm thực đa dạng,
+                    phù hợp cho bữa sáng, bữa trưa và bữa tối.
+                </p>
+                <a href="@Url.Action("AmThuc", "Home")" class="service-button">
+                    Khám phá Ẩm thực
+                </a>
+
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80"
+                 alt="Dịch vụ thể thao">
+            <div class="service-card-content">
+                <h3>Thể Thao & Giải Trí</h3>
+                <p>
+                    Dành thời gian thư giãn và duy trì năng lượng
+                    với các hoạt động giải trí trong kỳ nghỉ.
+                </p>
+                <a asp-controller="Home" asp-action="TienIch"
+                   class="service-button">Xem tiện ích</a>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80"
+                 alt="Dịch vụ chăm sóc khách hàng">
+            <div class="service-card-content">
+                <h3>Hỗ Trợ Khách Hàng</h3>
+                <p>
+                    Tiếp nhận yêu cầu và hỗ trợ giải đáp thắc mắc,
+                    giúp quý khách có trải nghiệm lưu trú thuận tiện.
+                </p>
+                <a asp-controller="Home" asp-action="Contact"
+                   class="service-button">Liên hệ</a>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80"
+                 alt="Dịch vụ tổ chức sự kiện">
+            <div class="service-card-content">
+                <h3>Tiệc & Sự Kiện</h3>
+                <p>
+                    Liên hệ để trao đổi nhu cầu tổ chức buổi gặp mặt,
+                    tiệc riêng hoặc sự kiện phù hợp với yêu cầu của bạn.
+                </p>
+                <a asp-controller="Home" asp-action="Contact"
+                   class="service-button">Tư vấn ngay</a>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="service-note">
+        <h2>Sẵn Sàng Phục Vụ Quý Khách</h2>
+        <p>
+            Hãy liên hệ với chúng tôi để được tư vấn thêm về dịch vụ
+            và lựa chọn phù hợp cho kỳ nghỉ của bạn.
+        </p>
+        <a asp-controller="Home" asp-action="Contact"
+           class="service-button">Liên hệ với chúng tôi</a>
+    </section>
+
+</div>
+

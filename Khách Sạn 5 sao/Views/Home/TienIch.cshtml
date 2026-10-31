@@ -1,0 +1,130 @@
+﻿
+@{
+    ViewBag.Title = "TienIch";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+<link rel="stylesheet" href="~/Content/StyleTIch.css" />
+<div class="facility-page">
+
+    <section class="facility-banner">
+        <h1>TIỆN ÍCH KHÁCH SẠN</h1>
+        <p>Tận hưởng kỳ nghỉ thoải mái và trọn vẹn</p>
+    </section>
+
+    <section class="facility-intro">
+        <h2>Khám Phá Tiện Ích</h2>
+        <p>
+            Không chỉ mang đến không gian nghỉ ngơi thoải mái,
+            khách sạn còn giới thiệu nhiều tiện ích giúp quý khách
+            thư giãn, rèn luyện sức khỏe và tận hưởng thời gian nghỉ dưỡng.
+        </p>
+    </section>
+
+    <section class="facility-list">
+
+        <div class="facility-card">
+            <img src="https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?auto=format&fit=crop&w=800&q=80"
+                 alt="Hồ bơi">
+
+            <div class="facility-content">
+                <h3>Hồ Bơi</h3>
+                <p>
+                    Không gian thư giãn bên hồ bơi, thích hợp để
+                    nghỉ ngơi và tận hưởng những khoảnh khắc thoải mái.
+                </p>
+                <a asp-controller="Home" asp-action="Contact"
+                   class="facility-button">Tìm hiểu thêm</a>
+            </div>
+        </div>
+
+        <div class="facility-card">
+            <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80"
+                 alt="Phòng tập thể hình">
+
+            <div class="facility-content">
+                <h3>Phòng Tập Thể Hình</h3>
+                <p>
+                    Không gian tập luyện giúp quý khách duy trì
+                    thói quen vận động trong thời gian lưu trú.
+                </p>
+                <a asp-controller="Home" asp-action="Contact"
+                   class="facility-button">Tìm hiểu thêm</a>
+            </div>
+        </div>
+
+        <div class="facility-card">
+            <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80"
+                 alt="Spa thư giãn">
+
+            <div class="facility-content">
+                <h3>Spa & Thư Giãn</h3>
+                <p>
+                    Tận hưởng khoảng thời gian thư giãn với các
+                    trải nghiệm chăm sóc và nghỉ ngơi phù hợp.
+                </p>
+                <a asp-controller="Home" asp-action="Contact"
+                   class="facility-button">Tìm hiểu thêm</a>
+            </div>
+        </div>
+
+        <div class="facility-card">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80"
+                 alt="Nhà hàng">
+
+            <div class="facility-content">
+                <h3>Nhà Hàng</h3>
+                <p>
+                    Khám phá trải nghiệm ẩm thực trong không gian
+                    được thiết kế để mang lại sự thoải mái.
+                </p>
+                <a href="@Url.Action("AmThuc", "Home")" class="facility-button">
+                    Khám phá Ẩm thực
+                </a>
+            </div>
+        </div>
+
+        <div class="facility-card">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80"
+                 alt="Khu vực nghỉ dưỡng">
+
+            <div class="facility-content">
+                <h3>Không Gian Nghỉ Dưỡng</h3>
+                <p>
+                    Tận hưởng không gian yên tĩnh để nghỉ ngơi,
+                    thư giãn và tái tạo năng lượng.
+                </p>
+                <a asp-controller="Home" asp-action="PhongNghi"
+                   class="facility-button">Xem phòng nghỉ</a>
+            </div>
+        </div>
+
+        <div class="facility-card">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80"
+                 alt="Không gian tổ chức sự kiện">
+
+            <div class="facility-content">
+                <h3>Không Gian Sự Kiện</h3>
+                <p>
+                    Liên hệ để tìm hiểu các lựa chọn không gian
+                    phù hợp cho buổi gặp mặt hoặc sự kiện riêng.
+                </p>
+                <a asp-controller="Home" asp-action="DichVu"
+                   class="facility-button">Xem dịch vụ</a>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="facility-note">
+        <h2>Trải Nghiệm Kỳ Nghỉ Theo Cách Của Bạn</h2>
+        <p>
+            Liên hệ với chúng tôi để tìm hiểu thông tin tiện ích
+            và lựa chọn dịch vụ phù hợp với nhu cầu của bạn.
+        </p>
+
+        <a asp-controller="Home" asp-action="Contact"
+           class="facility-button">Liên hệ ngay</a>
+    </section>
+
+</div>
+

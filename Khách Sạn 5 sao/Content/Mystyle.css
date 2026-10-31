@@ -1,0 +1,407 @@
+﻿/* ===== Reset & Cơ bản ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+body {
+    line-height: 1.6;
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ===== Header & Thanh Menu ===== */
+.hotel-header {
+    background-color: #3B0A1E;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    height: 80px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Logo trên thanh menu */
+.hotel-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+    .hotel-logo a {
+        display: flex;
+        align-items: center;
+    }
+
+.hotel-logo-img {
+    display: block;
+    width: 130px;
+    height: 65px;
+    object-fit: contain;
+    background: transparent;
+}
+
+.hotel-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .hotel-nav > a,
+    .menu-item > a {
+        padding: 10px 16px;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        transition: color 0.3s ease;
+    }
+
+        .hotel-nav > a:hover,
+        .menu-item > a:hover {
+            color: #ffd700;
+        }
+
+/* ===== Dropdown Menu ===== */
+.menu-item {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    min-width: 220px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 4px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.menu-item:hover .dropdown-menu {
+    display: flex;
+}
+
+.dropdown-menu a {
+    padding: 12px 20px;
+    color: #333;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+    .dropdown-menu a:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #1a237e;
+        color: #ffd700;
+        padding-left: 24px;
+    }
+
+/* ===== Nút Đặt Phòng ===== */
+.booking-btn {
+    background-color: #ffd700;
+    color: #1a237e;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+    .booking-btn:hover {
+        background-color: #ffc107;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+    }
+
+/* ===== Khung Giới Thiệu ===== */
+.intro-box {
+    display: none; /* Mặc định ẩn, JS điều khiển */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.intro-header {
+    background-color: #1a237e;
+    color: white;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .intro-header h2 {
+        font-size: 20px;
+        color: #ffd700;
+    }
+
+#btnDong {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s ease;
+}
+
+    #btnDong:hover {
+        color: #ffd700;
+    }
+
+.intro-content {
+    padding: 25px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+    .intro-content h3 {
+        color: #1a237e;
+        font-size: 17px;
+        margin: 20px 0 10px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #ffd700;
+    }
+
+    .intro-content p {
+        color: #555;
+        font-size: 15px;
+        text-align: justify;
+    }
+
+/* ===== Banner Chính ===== */
+/* Khu vực ảnh nền */
+.hotel-banner {
+    width: 100%;
+}
+
+.banner {
+    position: relative;
+    width: 100%;
+    height: 750px;
+    overflow: hidden;
+}
+
+    /* Ảnh phủ kín khu vực */
+    .banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+
+    /* Tạo lớp phủ tối */
+    .banner::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+    }
+
+/* Tiêu đề giữa ảnh */
+.banner-content {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 95%;
+    text-align: center;
+    color: white;
+    z-index: 2;
+}
+
+    .banner-content h1 {
+        font-family: Georgia, serif;
+        font-size: clamp(38px, 6vw, 90px);
+        margin-bottom: 15px;
+        color: white;
+    }
+
+    .banner-content p {
+        color: #ffd700;
+        font-size: 26px;
+        letter-spacing: 4px;
+    }
+
+/* ===== Nội dung chính ===== */
+#div-content {
+    min-height: 400px;
+    padding: 40px 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+    .hotel-header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 15px 20px;
+    }
+
+    .hotel-nav {
+        flex-wrap: wrap;
+        margin: 15px 0;
+        justify-content: center;
+    }
+
+    .banner-content h1 {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 576px) {
+    .hotel-nav {
+        gap: 0;
+    }
+
+        .hotel-nav > a,
+        .menu-item > a {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+    .booking-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .intro-box {
+        width: 95%;
+    }
+}
+
+/* KIỂM TRA CSS FOOTER */
+.hotel-footer {
+    display: block;
+    width: 100%;
+    background-color: #121321;
+    color: #eeeeF3;
+    padding: 60px 40px 0;
+}
+
+.footer-container {
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr 1.1fr 1fr;
+    gap: 35px;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding-bottom: 45px;
+}
+
+.footer-column {
+    min-width: 0;
+}
+
+    .footer-column h3 {
+        color: #eeeeF3;
+        font-size: 16px;
+        letter-spacing: 2px;
+        margin: 0 0 12px;
+    }
+
+.footer-line {
+    height: 2px;
+    width: 100%;
+    background: #252638;
+    margin-bottom: 30px;
+}
+
+.footer-column p,
+.footer-column > a {
+    color: #ddddE5;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+.footer-column > a {
+    display: block;
+    text-decoration: none;
+}
+
+.footer-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+    .footer-form input {
+        width: 100%;
+        height: 44px;
+        padding: 10px;
+        background: transparent;
+        border: 1px solid #d0d0d7;
+        color: white;
+    }
+
+    .footer-form button {
+        padding: 10px 20px;
+        border: none;
+        background: #ae702a;
+        color: white;
+        cursor: pointer;
+    }
+
+/* ===== CĂN GIỮA PHẦN BẢN QUYỀN ===== */
+.footer-bottom {
+    width: 100%;
+    border-top: 1px solid #252638;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+    .footer-bottom p {
+        margin: 0;
+        color: #999bab;
+        font-size: 13px;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+    .footer-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .hotel-footer {
+        padding: 40px 22px 0;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+}

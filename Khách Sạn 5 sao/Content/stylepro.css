@@ -1,0 +1,182 @@
+﻿
+/* Cài đặt chung */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #3B0A1E;
+    background-color: #fff;
+    line-height: 1.6;
+}
+
+
+
+/* Banner trang chủ */
+.hotel-banner {
+    width: 100%;
+}
+
+.banner {
+    position: relative;
+    width: 100%;
+    height: 750px;
+    overflow: hidden;
+}
+
+    /* Ảnh phủ toàn bộ banner */
+    .banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+
+    /* Lớp phủ tối trên ảnh */
+    .banner::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        pointer-events: none;
+    }
+
+/* Chữ nằm chính giữa ảnh */
+.banner-content {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    color: white;
+    z-index: 2;
+}
+
+    .banner-content h1 {
+        font-family: Georgia, serif;
+        font-size: 76px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+    }
+
+    .banner-content p {
+        font-size: 26px;
+        letter-spacing: 5px;
+        color: #ffd700;
+    }
+
+/* Menu ở phía dưới ảnh */
+.banner-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    min-height: 85px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.72);
+    z-index: 3;
+}
+
+    .banner-nav a {
+        color: #986b3d;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+        .banner-nav a:hover {
+            color: #e94560;
+        }
+
+
+/* Phần giới thiệu */
+.home-intro {
+    text-align: center;
+    padding: 60px 20px;
+    max-width: 900px;
+    margin: auto;
+}
+
+    .home-intro h2 {
+        font-size: 30px;
+        color: #174a68;
+        margin-bottom: 20px;
+    }
+
+    .home-intro p {
+        font-size: 16px;
+        margin-bottom: 25px;
+    }
+
+/* Nút tìm hiểu thêm */
+.intro-button {
+    display: inline-block;
+    background-color: #000044;
+    color: white;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+    .intro-button:hover {
+        background-color: #287ca5;
+    }
+
+/* Phần dịch vụ */
+.home-services {
+    background-color: #f4f8fa;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+    .home-services h2 {
+        font-size: 30px;
+        color: #174a68;
+        margin-bottom: 30px;
+    }
+
+/* Danh sách dịch vụ */
+.service-list {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+/* Từng ô dịch vụ */
+.service-item {
+    background-color: white;
+    padding: 30px 20px;
+    flex: 1;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+    .service-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .service-item h3 {
+        color: #174a68;
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+
+    .service-item p {
+        font-size: 15px;
+    }

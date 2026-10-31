@@ -1,0 +1,142 @@
+﻿.facility-page {
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.facility-banner {
+    height: 350px;
+    /* Sửa lớp phủ từ màu tím sang màu xanh dương đậm giống thanh menu */
+    background: linear-gradient(rgba(0, 0, 68, 0.65), rgba(0, 0, 68, 0.65)), url('https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?auto=format&fit=crop&w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+    .facility-banner h1 {
+        font-size: 42px;
+        letter-spacing: 4px;
+        margin-bottom: 15px;
+    }
+
+    .facility-banner p {
+        font-size: 18px;
+    }
+
+.facility-intro {
+    max-width: 850px;
+    margin: 45px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+    .facility-intro h2 {
+        color: #000044; /* Giữ nguyên màu xanh menu */
+        font-size: 30px;
+        margin-bottom: 18px;
+    }
+
+    .facility-intro p {
+        color: #666;
+        line-height: 1.8;
+    }
+
+.facility-list {
+    max-width: 1150px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+.facility-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s;
+}
+
+    .facility-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .facility-card img {
+        width: 100%;
+        height: 230px;
+        object-fit: cover;
+        display: block;
+    }
+
+.facility-content {
+    padding: 22px;
+}
+
+    .facility-content h3 {
+        color: #000044; /* Đổi tiêu đề khối tiện ích từ màu tím sang xanh menu */
+        font-size: 21px;
+        margin: 0 0 12px;
+    }
+
+    .facility-content p {
+        color: #666;
+        line-height: 1.7;
+        min-height: 80px;
+    }
+
+.facility-button {
+    display: inline-block;
+    background: #000044; /* Đổi nền nút "Tìm hiểu thêm" sang màu xanh menu gốc */
+    color: white;
+    padding: 11px 22px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+    .facility-button:hover {
+        background: #43235f; /* Khi hover nút sẽ chuyển sang màu tím đêm sang trọng để tạo điểm nhấn */
+        color: white;
+    }
+
+.facility-note {
+    background: #f0f4fa; /* Đổi màu nền ghi chú từ tím nhạt sang xanh dương cực nhạt để hợp tông */
+    text-align: center;
+    padding: 45px 20px;
+}
+
+    .facility-note h2 {
+        color: #000044; /* Giữ nguyên màu xanh menu */
+        margin-bottom: 15px;
+    }
+
+    .facility-note p {
+        color: #666;
+        line-height: 1.8;
+    }
+
+@media (max-width: 900px) {
+    .facility-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .facility-list {
+        grid-template-columns: 1fr;
+    }
+
+    .facility-banner {
+        height: 280px;
+    }
+
+        .facility-banner h1 {
+            font-size: 30px;
+        }
+}

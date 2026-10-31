@@ -1,0 +1,171 @@
+﻿
+@{
+    ViewBag.Title = "PhongNghi";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+<link rel="stylesheet" href="~/Content/StylePN.css" />
+<div class="room-page">
+
+    <section class="room-banner">
+        <h1>PHÒNG NGHỈ</h1>
+        <p>Không gian thư giãn cho kỳ nghỉ trọn vẹn</p>
+    </section>
+
+    <section class="room-intro">
+        <h2>Không Gian Nghỉ Dưỡng</h2>
+        <p>
+            Khám phá các lựa chọn phòng nghỉ với không gian thoải mái,
+            thiết kế hiện đại và tiện nghi cần thiết cho chuyến đi của bạn.
+            Hãy lựa chọn loại phòng phù hợp với nhu cầu lưu trú của mình.
+        </p>
+    </section>
+
+    <section class="room-list">
+
+        <div class="room-card">
+            <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80"
+                 alt="Phòng Superior">
+
+            <div class="room-content">
+                <h3>Phòng Superior</h3>
+                <p>
+                    Không gian gọn gàng, tiện nghi, phù hợp cho
+                    khách đi công tác hoặc nghỉ dưỡng ngắn ngày.
+                </p>
+
+                <div class="room-features">
+                    ✓ Giường ngủ thoải mái<br />
+                    ✓ Điều hòa và Wi-Fi<br />
+                    ✓ Phòng tắm riêng
+                </div>
+
+                <a asp-controller="Home" asp-action="Contact"
+                   class="room-button">Liên hệ đặt phòng</a>
+            </div>
+        </div>
+
+        <div class="room-card">
+            <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"
+                 alt="Phòng Deluxe">
+
+            <div class="room-content">
+                <h3>Phòng Deluxe</h3>
+                <p>
+                    Thiết kế sang trọng với không gian rộng rãi,
+                    mang đến cảm giác thư giãn trong suốt kỳ nghỉ.
+                </p>
+
+                <div class="room-features">
+                    ✓ Không gian rộng rãi<br />
+                    ✓ Nội thất hiện đại<br />
+                    ✓ Tiện nghi nghỉ dưỡng
+                </div>
+
+                <a asp-controller="Home" asp-action="Contact"
+                   class="room-button">Liên hệ đặt phòng</a>
+            </div>
+        </div>
+
+        <div class="room-card">
+            <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80"
+                 alt="Phòng hướng biển">
+
+            <div class="room-content">
+                <h3>Phòng Hướng Biển</h3>
+                <p>
+                    Lựa chọn dành cho khách yêu thích cảnh biển,
+                    không gian thoáng đãng và những khoảnh khắc thư thái.
+                </p>
+
+                <div class="room-features">
+                    ✓ Không gian nghỉ dưỡng<br />
+                    ✓ Thiết kế trang nhã<br />
+                    ✓ Phù hợp cho kỳ nghỉ
+                </div>
+
+                <a asp-controller="Home" asp-action="Contact"
+                   class="room-button">Liên hệ đặt phòng</a>
+            </div>
+        </div>
+
+        <div class="room-card">
+            <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80"
+                 alt="Phòng gia đình">
+
+            <div class="room-content">
+                <h3>Phòng Gia Đình</h3>
+                <p>
+                    Không gian phù hợp cho gia đình hoặc nhóm khách
+                    muốn cùng nhau tận hưởng chuyến đi.
+                </p>
+
+                <div class="room-features">
+                    ✓ Không gian sinh hoạt thoải mái<br />
+                    ✓ Phù hợp cho gia đình<br />
+                    ✓ Tiện nghi cơ bản
+                </div>
+
+                <a asp-controller="Home" asp-action="Contact"
+                   class="room-button">Liên hệ đặt phòng</a>
+            </div>
+        </div>
+
+        <div class="room-card">
+            <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80"
+                 alt="Phòng Suite">
+
+            <div class="room-content">
+                <h3>Phòng Suite</h3>
+                <p>
+                    Phong cách tinh tế, không gian nghỉ ngơi rộng rãi,
+                    dành cho khách mong muốn trải nghiệm cao cấp hơn.
+                </p>
+
+                <div class="room-features">
+                    ✓ Thiết kế cao cấp<br />
+                    ✓ Không gian rộng rãi<br />
+                    ✓ Nội thất sang trọng
+                </div>
+
+                <a asp-controller="Home" asp-action="Contact"
+                   class="room-button">Liên hệ đặt phòng</a>
+            </div>
+        </div>
+
+        <div class="room-card">
+            <img src="https://images.unsplash.com/photo-1595576508898-0ad5c879a061?auto=format&fit=crop&w=800&q=80"
+                 alt="Phòng nghỉ cao cấp">
+
+            <div class="room-content">
+                <h3>Phòng Cao Cấp</h3>
+                <p>
+                    Không gian nghỉ dưỡng được thiết kế hướng đến
+                    sự riêng tư, thoải mái và tiện nghi.
+                </p>
+
+                <div class="room-features">
+                    ✓ Không gian riêng tư<br />
+                    ✓ Nội thất hiện đại<br />
+                    ✓ Phù hợp cho kỳ nghỉ dài ngày
+                </div>
+
+                <a asp-controller="Home" asp-action="Contact"
+                   class="room-button">Liên hệ đặt phòng</a>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="room-note">
+        <h2>Tìm Phòng Nghỉ Phù Hợp Với Bạn</h2>
+        <p>
+            Liên hệ với chúng tôi để được tư vấn về lựa chọn phòng,
+            ngày lưu trú và các yêu cầu đặc biệt.
+        </p>
+
+        <a asp-controller="Home" asp-action="Contact"
+           class="room-button">Liên hệ ngay</a>
+    </section>
+
+</div>
+
