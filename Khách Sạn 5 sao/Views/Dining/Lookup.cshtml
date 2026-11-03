@@ -1,0 +1,433 @@
+﻿@model Khách_Sạn_5_sao.Controllers.DiningController.LookupPage
+@using System.Globalization
+@using Khách_Sạn_5_sao.Controllers
+
+@{
+    ViewBag.Title = "Tra cứu đặt dịch vụ";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+    var culture = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<style>
+    .hotel-banner {
+        position: relative;
+    }
+
+        .hotel-banner .banner {
+            height: 240px;
+        }
+
+        .hotel-banner .banner-content {
+            top: 50%;
+        }
+
+            .hotel-banner .banner-content h1 {
+                font-size: clamp(30px,4vw,52px);
+            }
+
+            .hotel-banner .banner-content p {
+                font-size: 16px;
+                letter-spacing: 2px;
+            }
+
+    .service-lookup {
+        max-width: 960px;
+        margin: auto;
+        color: #303344;
+    }
+
+        .service-lookup h1, .service-lookup h3 {
+            color: #5c3c92;
+        }
+
+        .service-lookup h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .service-lookup .hint {
+            color: #657080;
+            margin-bottom: 20px;
+        }
+
+        .service-lookup .panel {
+            border: 1px solid #e6e1ed;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            margin: 20px 0;
+        }
+
+        .service-lookup .panel-title {
+            padding: 16px 22px;
+            background: #5c3c92;
+            color: white;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+            .service-lookup .panel-title h2 {
+                font-size: 19px;
+                margin: 0;
+                color: inherit;
+            }
+
+        .service-lookup .panel-body {
+            padding: 22px;
+        }
+
+        .service-lookup .lookup-form {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr auto;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .service-lookup label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .service-lookup input, .service-lookup textarea {
+            width: 100%;
+            min-width: 0;
+            padding: 11px;
+            border: 1px solid #d6dbe5;
+            border-radius: 6px;
+            font: inherit;
+        }
+
+        .service-lookup .button {
+            display: inline-block;
+            padding: 12px 18px;
+            background: #5c3c92;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .service-lookup .lookup-button {
+            margin-top: 32px;
+            white-space: nowrap;
+        }
+
+        .service-lookup .danger {
+            background: #b72b49;
+        }
+
+        .service-lookup .status {
+            background: white;
+            color: #5c3c92;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-weight: 600;
+        }
+
+        .service-lookup .notice {
+            padding: 15px;
+            background: #f3eff8;
+            border: 1px solid #dfd4ef;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .service-lookup .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .service-lookup .info {
+            padding: 16px;
+            background: #f8f9fc;
+            border: 1px solid #e1e4ec;
+            border-radius: 8px;
+            min-width: 0;
+        }
+
+        .service-lookup p {
+            margin-bottom: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .service-lookup .price {
+            color: #dc3155;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .service-lookup .code {
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .service-lookup .note {
+            white-space: pre-wrap;
+        }
+
+        .service-lookup h3 {
+            font-size: 17px;
+            margin: 22px 0 10px;
+        }
+
+        .service-lookup textarea {
+            min-height: 90px;
+            margin-bottom: 12px;
+        }
+
+        .service-lookup .agree {
+            display: flex;
+            gap: 8px;
+            align-items: start;
+            font-weight: 400;
+            margin: 10px 0 16px;
+        }
+
+            .service-lookup .agree input {
+                width: auto;
+                margin-top: 6px;
+            }
+
+        .service-lookup .validation-summary-errors {
+            padding: 14px 18px;
+            color: #b32444;
+            background: #fff0f3;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+
+            .service-lookup .validation-summary-errors ul {
+                padding-left: 18px;
+            }
+
+        .service-lookup .validation-summary-valid {
+            display: none;
+        }
+
+        .service-lookup .links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+    #dining-result {
+        scroll-margin-top: 180px;
+    }
+
+    @@media(max-width:700px) {
+        .service-lookup .lookup-form, .service-lookup .details {
+            grid-template-columns: 1fr;
+        }
+
+        .service-lookup .lookup-button {
+            margin-top: 0;
+            width: 100%;
+        }
+
+        .service-lookup .panel-body {
+            padding: 16px;
+        }
+
+        #dining-result {
+            scroll-margin-top: 280px;
+        }
+    }
+</style>
+
+<main class="service-lookup">
+    <h1>Tra cứu đặt dịch vụ</h1>
+    <p class="hint">
+        Nhập mã đặt dịch vụ và số điện thoại lúc đăng ký.
+        Không cần mã đặt phòng.
+    </p>
+
+    <section class="panel">
+        <div class="panel-title"><h2>Thông tin tra cứu</h2></div>
+        <div class="panel-body">
+            <form action="@Url.Action("Lookup","Dining")" method="post">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(false, "", new { role = "alert" })
+
+                <div class="lookup-form">
+                    <div>
+                        <label for="Code">Mã đặt dịch vụ</label>
+                        @Html.TextBoxFor(m => m.Code, new
+                        {
+                            maxlength = "24",
+                            required = "required",
+                            placeholder = "AT-... hoặc DV-..."
+                        })
+                    </div>
+                    <div>
+                        <label for="Phone">Số điện thoại lúc đặt</label>
+                        @Html.TextBoxFor(m => m.Phone, new
+                        {
+                            type = "tel",
+                            maxlength = "32",
+                            required = "required",
+                            autocomplete = "tel"
+                        })
+                    </div>
+                    <button class="button lookup-button" type="submit">
+                        Tra cứu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <div id="dining-result">
+        @if (TempData["DiningMessage"] != null)
+        {
+            <div class="notice" role="status">@TempData["DiningMessage"]</div>
+        }
+
+        @if (Model.Order != null)
+        {
+            var order = Model.Order;
+
+            <section class="panel">
+                <div class="panel-title">
+                    <h2>Yêu cầu đặt dịch vụ</h2>
+                    <span class="status">@DiningController.StatusText(order.Status)</span>
+                </div>
+
+                <div class="panel-body">
+                    <p>
+                        <strong>Mã đặt dịch vụ:</strong>
+                        <span class="code">@order.Code</span>
+                    </p>
+
+                    <div class="details">
+                        <div class="info">
+                            <p>
+                                <strong>Nhóm:</strong>
+                                @(order.GroupCode == "WELLNESS"
+                                    ? "Thư giãn & Sức khỏe" : "Ăn uống")
+                            </p>
+                            <p><strong>Dịch vụ:</strong> @order.ServiceName</p>
+                            <p><strong>Ngày đến:</strong> @order.VisitAt.ToString("dd/MM/yyyy")</p>
+                            <p><strong>Giờ đến:</strong> @order.VisitAt.ToString("HH:mm") — giờ Việt Nam</p>
+                            <p><strong>Số người:</strong> @order.Guests</p>
+                        </div>
+
+                        <div class="info">
+                            <p><strong>Người đặt:</strong> @order.FullName</p>
+                            <p><strong>Điện thoại:</strong> @order.Phone</p>
+                            @if (!string.IsNullOrWhiteSpace(order.Email))
+                            {
+                                <p><strong>Email:</strong> @order.Email</p>
+                            }
+                            <p>
+                                <strong>Ngày gửi:</strong>
+                                @order.CreatedAtUtc.AddHours(7).ToString("dd/MM/yyyy HH:mm")
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3>Chi phí và thanh toán</h3>
+
+                    @if (order.PricingMode == "PER_PERSON")
+                    {
+                        <p>Đơn giá: @order.UnitPrice.Value.ToString("N0", culture) đ / người</p>
+                        <p class="price">
+                            Ước tính: @order.EstimatedTotal.Value.ToString("N0", culture) đ
+                        </p>
+                    }
+                    else if (order.PricingMode == "A_LA_CARTE")
+                    {
+                        <p>Chi phí theo thực đơn và các món gọi thực tế.</p>
+                    }
+                    else
+                    {
+                        <div class="notice">
+                            Đang chờ nhân viên báo giá.
+                            Giá được thống nhất với bạn trước khi xác nhận yêu cầu.
+                        </div>
+                    }
+
+                    <p>Thanh toán tại nơi sử dụng dịch vụ.</p>
+
+                    @if (order.Status == "PENDING")
+                    {
+                        <div class="notice">
+                            Đã tiếp nhận yêu cầu. Nhân viên sẽ kiểm tra lịch,
+                            khả năng phục vụ và liên hệ xác nhận.
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(order.Notes))
+                    {
+                        <h3>Ghi chú của bạn</h3>
+                        <p class="note">@order.Notes</p>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(order.StaffNote))
+                    {
+                        <h3>Phản hồi từ khách sạn</h3>
+                        <p class="note">@order.StaffNote</p>
+                    }
+
+                    @if (order.Status == "CANCELLED")
+                    {
+                        <h3>Thông tin hủy</h3>
+                        <p>Yêu cầu đã hủy và vẫn được lưu để tra cứu.</p>
+                        <p class="note">@order.CancellationReason</p>
+                    }
+
+                    @if (Model.CanCancel && !Model.AskCancel)
+                    {
+                        <h3>Thay đổi kế hoạch</h3>
+                        <p>Bạn có thể hủy yêu cầu trước giờ đến.</p>
+                        <a class="button danger"
+                           href="@Url.Action("Lookup","Dining",new { code=order.Code,cancel=true })#dining-result">
+                            Hủy yêu cầu này
+                        </a>
+                    }
+
+                    @if (Model.CanCancel && Model.AskCancel)
+                    {
+                        <h3>Xác nhận hủy</h3>
+                        <form action="@Url.Action("Cancel","Dining")" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="code" value="@order.Code" />
+                            <label for="cancel-reason">Lý do hủy</label>
+                            <textarea id="cancel-reason" name="reason"
+                                      minlength="3" maxlength="500" required></textarea>
+                            <label class="agree">
+                                <input type="checkbox" name="confirm" value="true" required />
+                                Tôi xác nhận hủy yêu cầu này.
+                            </label>
+                            <button class="button danger" type="submit">Xác nhận hủy</button>
+                            <a href="@Url.Action("Lookup","Dining",new { code=order.Code })#dining-result">
+                                Giữ lại yêu cầu
+                            </a>
+                        </form>
+                    }
+
+                    <p style="margin-top:20px;">
+                        <a href="@Url.Action("Lookup","Dining",new { code=order.Code })#dining-result">
+                            Cập nhật trạng thái
+                        </a>
+                    </p>
+                </div>
+            </section>
+        }
+    </div>
+
+    <div class="links">
+        <a class="button" href="@Url.Action("Index","Dining",new { group="DINING" })">
+            Đặt ăn uống
+        </a>
+        <a class="button" href="@Url.Action("Index","Dining",new { group="WELLNESS" })">
+            Đặt thư giãn &amp; sức khỏe
+        </a>
+    </div>
+</main>

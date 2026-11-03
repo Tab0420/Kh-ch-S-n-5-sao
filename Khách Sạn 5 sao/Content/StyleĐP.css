@@ -25,3 +25,148 @@
 .table-hover tbody tr:hover {
     background-color: #fcfaff;
 }
+
+/* Danh sách phòng */
+.booking-room-page {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+    .booking-room-page .room-intro {
+        margin-bottom: 28px;
+    }
+
+        .booking-room-page .room-intro h2 {
+            color: #563477;
+            font-size: 30px;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .booking-room-page .room-intro p {
+            color: #626775;
+        }
+
+    .booking-room-page .room-list-items {
+        display: grid;
+        gap: 24px;
+    }
+
+    .booking-room-page .room-detail-card {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        background: #fff;
+        border: 1px solid #e6e1ed;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(41, 24, 61, 0.06);
+    }
+
+    .booking-room-page .room-image {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        background: #eee9f4;
+        color: #68587c;
+        text-align: center;
+    }
+
+        .booking-room-page .room-image img {
+            position: absolute;
+            inset: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+            .booking-room-page .room-image img[hidden] {
+                display: none;
+            }
+
+    .booking-room-page .room-content {
+        min-width: 0;
+        padding: 28px;
+        overflow-wrap: anywhere;
+    }
+
+        .booking-room-page .room-content h3 {
+            color: #563477;
+            font-size: 24px;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }
+
+    .booking-room-page .room-price {
+        color: #b62e51;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .booking-room-page .room-amenities {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 20px;
+        margin: 20px 0 24px;
+        color: #515463;
+        font-size: 15px;
+    }
+
+    .booking-room-page .amenity-check {
+        color: #25805a;
+        font-weight: 700;
+    }
+
+    .booking-room-page .room-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 10px 24px;
+        border-radius: 8px;
+        background: #5c3c92;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .booking-room-page .room-button:hover {
+            background: #4a2f77;
+        }
+
+        .booking-room-page .room-button:focus-visible {
+            outline: 3px solid #b798e0;
+            outline-offset: 3px;
+        }
+
+@media (max-width: 700px) {
+    .booking-room-page .room-detail-card {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .booking-room-page .room-image {
+        min-height: 0;
+        aspect-ratio: 16 / 10;
+    }
+
+    .booking-room-page .room-content {
+        padding: 20px;
+    }
+
+    .booking-room-page .room-intro h2 {
+        font-size: 26px;
+    }
+
+    .booking-room-page .room-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 380px) {
+    .booking-room-page .room-amenities {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

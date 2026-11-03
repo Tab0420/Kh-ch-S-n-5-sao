@@ -1,183 +1,205 @@
-﻿@model IEnumerable<Khách_Sạn_5_sao.Models.Booking>
+﻿@model IEnumerable<Khách_Sạn_5_sao.Models.Room>
+@using System.Collections.Generic
+@using System.Linq
 
 @{
-    ViewBag.Title = "Danh Sách Phòng";
+    ViewBag.Title = "Phòng trống";
     Layout = "~/Views/Shared/_MasterLayout.cshtml";
 
-    // LẤY GIÁ TRỊ TỪ VIEWBAG HOẶC TRỰC TIẾP TỪ URL (Request.QueryString)
-    string rawLoaiPhong = ViewBag.LoaiPhong as string ?? Request.QueryString["loaiPhong"] ?? "Superior";
+    DateTime start = ViewBag.CheckIn;
+    DateTime end = ViewBag.CheckOut;
+    DateTime today = ViewBag.Today;
 
-    // CHUẨN HÓA MÃ LOẠI PHÒNG ĐỂ LỌC KHÔNG BỊ LỖI PHÔNG TIẾNG VIỆT/CÓ DẤU
-    string keyLoaiPhong = "Superior";
-    string tenLoaiPhong = "Superior";
-    int currentTypeId = 1;
+    var names = ViewBag.RoomNames as IDictionary<string, string>
+        ?? new Dictionary<string, string>();
 
-    if (rawLoaiPhong.Contains("Deluxe"))
-    {
-        keyLoaiPhong = "Deluxe";
-        tenLoaiPhong = "Deluxe";
-        currentTypeId = 2;
-    }
-    else if (rawLoaiPhong.Contains("Biển") || rawLoaiPhong.Contains("HuongBien"))
-    {
-        keyLoaiPhong = "HuongBien";
-        tenLoaiPhong = "Hướng Biển";
-        currentTypeId = 3;
-    }
-    else if (rawLoaiPhong.Contains("Đình") || rawLoaiPhong.Contains("GiaDinh"))
-    {
-        keyLoaiPhong = "GiaDinh";
-        tenLoaiPhong = "Gia Đình";
-        currentTypeId = 4;
-    }
-    else if (rawLoaiPhong.Contains("Suite") || rawLoaiPhong.Contains("Suit"))
-    {
-        keyLoaiPhong = "Suite";
-        tenLoaiPhong = "Suite";
-        currentTypeId = 5;
-    }
-    else if (rawLoaiPhong.Contains("Cấp") || rawLoaiPhong.Contains("CaoCap"))
-    {
-        keyLoaiPhong = "CaoCap";
-        tenLoaiPhong = "Cao Cấp";
-        currentTypeId = 6;
-    }
+    var photos = ViewBag.RoomPhotos as IDictionary<string, string>
+        ?? new Dictionary<string, string>();
 
-    var rooms = new[]
-    {
-        // =============== SUPERIOR (TypeId = 1) ===============
-        new { Loai = "Superior", Ten = "Silver Moon", Anh = "https://poliva.vn/wp-content/uploads/2019/08/phong-Superior-3.jpg", Gia = "1.200.000đ / đêm", SoNguoi = 3, DienTich = 30 },
-        new { Loai = "Superior", Ten = "Lavender Dream", Anh = "https://yiwin.vn/wp-content/uploads/2025/09/Phong-Superior-Double.jpg", Gia = "1.300.000đ / đêm", SoNguoi = 2, DienTich = 35 },
-        new { Loai = "Superior", Ten = "Starlight Haven", Anh = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyYM8VMRdKcgqv-7cXMzFx04X-_U3Wi15yrxHYoJv3o_Xlo2aHddFxBCfW&s=10", Gia = "1.500.000đ / đêm", SoNguoi = 2, DienTich = 35 },
-        new { Loai = "Superior", Ten = "Pearl Glow", Anh = "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/72/2026/08/18131501/Room-2709_12196.jpg", Gia = "1.800.000đ / đêm", SoNguoi = 4, DienTich = 50 },
-        new { Loai = "Superior", Ten = "Velvet Night", Anh = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4zONR5glibppTO0KOCMTC-Zm9SbhGfSnGx3_MJm_hJjbN3Tgi2K_8dA5q&s=10", Gia = "2.000.000đ / đêm", SoNguoi = 2, DienTich = 36 },
-        new { Loai = "Superior", Ten = "Celestial Room", Anh = "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/si…01/2024/10/10044811/Superior-with-Balcony_02-min-370x276.jpg", Gia = "2.500.000đ / đêm", SoNguoi = 2, DienTich = 35 },
+    string fallback =
+        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80";
 
-        // =============== DELUXE (TypeId = 2) ===============
-new { Loai = "Deluxe", Ten = "Royal Velvet", Anh = "https://aftavietnam.com.vn/wp-content/uploads/2024/01/phong-deluxe-la-gi-co-nen-chon-phong-deluxe-khong-22960-7.jpg", Gia = "1.500.000đ / đêm", SoNguoi = 2, DienTich = 42 },
-        new { Loai = "Deluxe", Ten = "Golden Hour", Anh = "https://hoteldelamourtamdao.com/wp-content/uploads/2023/06/Deluxe-King-1.jpg", Gia = "1.700.000đ / đêm", SoNguoi = 2, DienTich = 40 },
-        new { Loai = "Deluxe", Ten = "Midnight Elegance", Anh = "https://hiddencharmresort.com/image-data/1920-1280/hiddench…upload/images/phong-nghi/Spacious-Deluxe/Deluxe-Double_3.jpg", Gia = "1.800.000đ / đêm", SoNguoi = 2, DienTich = 45 },
-        new { Loai = "Deluxe", Ten = "Diamond Suite", Anh = "https://marinahotel.vn/upload/attachment/3102deluxe-twin-1.jpg", Gia = "2.000.000đ / đêm", SoNguoi = 4, DienTich = 40 },
-        new { Loai = "Deluxe", Ten = "Aurora Luxe", Anh = "https://ezcloud.vn/wp-content/uploads/2023/03/can-phong-deluxe.webp", Gia = "2.200.000đ / đêm", SoNguoi = 2, DienTich = 47 },
-        new { Loai = "Deluxe", Ten = "Opal Serenity", Anh = "https://aftavietnam.com.vn/wp-content/uploads/2024/01/phong-deluxe-la-gi-co-nen-chon-phong-deluxe-khong-22960-7.jpg", Gia = "2.500.000đ / đêm", SoNguoi = 2, DienTich = 46 },
-
-        // =============== HƯỚNG BIỂN (TypeId = 3) ===============
-        new { Loai = "HuongBien", Ten = "Ocean Pearl", Anh = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkPbTJ9iaShfU1TS_sjVcUXBZXdnN7uikr07ya0d7YTw&s=10", Gia = "2.000.000đ / đêm", SoNguoi = 2, DienTich = 35 },
-        new { Loai = "HuongBien", Ten = "Azure Horizon", Anh = "https://phuquoc.regenthotels.com/sites/rpq/files/styles/wid…tes-villas/Regent%20Phu%20Quoc%202026%2001.jpg?itok=TcB8_4XM", Gia = "2.200.000đ / đêm", SoNguoi = 2, DienTich = 38 },
-        new { Loai = "HuongBien", Ten = "Blue Serenity", Anh = "https://www.navadahotel.com/FileStorage/Room/Thumbnail/DSC_9377-HDR.jpg", Gia = "2.400.000đ / đêm", SoNguoi = 4, DienTich = 45 },
-        new { Loai = "HuongBien", Ten = "Sea of Stars", Anh = "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/227/2026/08/10080318/Copy-of-2.jpg", Gia = "2.600.000đ / đêm", SoNguoi = 2, DienTich = 41 },
-        new { Loai = "HuongBien", Ten = "Coral Dream", Anh = "https://vinastay.com/FILES/source/hotels/Vinpearl%20Resort%…/Phong-deluxe-huong-bien-Vinpearl-Resort-Nha-Trang%20(3).jpg", Gia = "2.800.000đ / đêm", SoNguoi = 2, DienTich = 47 },
-        new { Loai = "HuongBien", Ten = "Ocean Whisper", Anh = "https://www.vietnambooking.com/wp-content/uploads/2023/08/khach-san-phu-quoc-view-dep-nhat-4.jpg", Gia = "3.000.000đ / đêm", SoNguoi = 2, DienTich = 41 },
-
-        // =============== GIA ĐÌNH (TypeId = 4) ===============
-new { Loai = "GiaDinh", Ten = "Family Paradise", Anh = "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80", Gia = "3.200.000đ / đêm", SoNguoi = 5, DienTich = 60 },
-        new { Loai = "GiaDinh", Ten = "Family Suite Haven", Anh = "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80", Gia = "3.500.000đ / đêm", SoNguoi = 6, DienTich = 65 },
-
-        // =============== SUITE (TypeId = 5) ===============
-        new { Loai = "Suite", Ten = "Presidential Suite", Anh = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80", Gia = "4.500.000đ / đêm", SoNguoi = 2, DienTich = 80 },
-        new { Loai = "Suite", Ten = "Imperial Suite", Anh = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80", Gia = "5.000.000đ / đêm", SoNguoi = 4, DienTich = 90 },
-
-        // =============== CAO CẤP (TypeId = 6) ===============
-        new { Loai = "CaoCap", Ten = "Penthouse Luxury", Anh = "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80", Gia = "6.000.000đ / đêm", SoNguoi = 4, DienTich = 120 },
-        new { Loai = "CaoCap", Ten = "Royal Crown Villa", Anh = "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80", Gia = "7.500.000đ / đêm", SoNguoi = 6, DienTich = 150 }
-    };
-
-    // LỌC DANH SÁCH THEO MÃ LOẠI PHÒNG ĐÃ CHUẨN HÓA
-    var danhSachPhong = rooms
-        .Where(r => r.Loai == keyLoaiPhong)
-        .ToList();
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
 }
 
-<link rel="stylesheet" href="~/Content/StyleĐP.css" />
+<link rel="stylesheet" href="@Url.Content("~/Content/StyleĐP.css")?v=2" />
 
-<div class="room-page">
+<div class="booking-room-page">
 
     <div class="room-intro">
-        <h2>Danh sách phòng @tenLoaiPhong</h2>
-        <p>Khám phá không gian nghỉ dưỡng tại Moonlight Hotel.</p>
+        <h2>Chọn phòng trống</h2>
+        <p>
+            Chọn ngày lưu trú và loại phòng.
+            Kết quả chỉ gồm phòng còn trống trong cả khoảng ngày bạn chọn.
+        </p>
     </div>
 
-    <div class="room-list-items">
-
-        @foreach (var room in danhSachPhong)
+    @using (Html.BeginForm(
+        "Index", "Bookings", FormMethod.Get,
+        new
         {
-            <div class="room-detail-card">
+            style = "display:flex;flex-wrap:wrap;gap:16px;padding:20px;" +
+                    "background:white;border:1px solid #e6e1ed;" +
+                    "border-radius:12px;margin-bottom:24px;align-items:end;"
+        }))
+    {
+        <label style="flex:1;min-width:180px;">
+            Ngày nhận phòng
+            <input type="date"
+                   name="ngay_checkin"
+                   value="@start.ToString("yyyy-MM-dd")"
+                   min="@today.ToString("yyyy-MM-dd")"
+                   required
+                   style="display:block;width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;" />
+        </label>
 
-                <!-- Hình ảnh phòng -->
-                <img src="@room.Anh"
-                     alt="@room.Ten"
-                     onerror="this.style.display='none';" />
+        <label style="flex:1;min-width:180px;">
+            Ngày trả phòng
+            <input type="date"
+                   name="ngay_checkout"
+                   value="@end.ToString("yyyy-MM-dd")"
+                   min="@start.AddDays(1).ToString("yyyy-MM-dd")"
+                   required
+                   style="display:block;width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;" />
+        </label>
 
-                <!-- Thông tin phòng -->
-                <div class="room-content">
+        <label style="flex:1;min-width:180px;">
+            Loại phòng
+            @Html.DropDownList(
+                "type_id",
+                (SelectList)ViewBag.RoomTypes,
+                "Tất cả loại phòng",
+                new
+                {
+                    style = "display:block;width:100%;padding:10px;" +
+                            "border:1px solid #ccc;border-radius:6px;"
+                }
+            )
+        </label>
 
-                    <h3>@room.Ten</h3>
+        <button type="submit"
+                class="room-button"
+                style="border:0;cursor:pointer;">
+            Tìm phòng trống
+        </button>
+    }
 
-                    <p class="room-price">@room.Gia</p>
+    @Html.ValidationSummary(
+        false, "",
+        new { style = "color:#b62e51;margin-bottom:20px;", role = "alert" }
+    )
 
-                    <!-- Tiện ích phòng -->
-                    <div class="room-amenities"
-                         style="display: grid !important;
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            column-gap: 25px;
-            row-gap: 8px;
-            width: 100%;
-            margin: 10px 0 20px;">
+    @if (TempData["RoomMessage"] != null)
+    {
+        <p role="alert">@TempData["RoomMessage"]</p>
+    }
 
-                        <div class="amenity-item" style="display: flex; align-items: center; gap: 8px;">
-                            <span class="amenity-check">✓</span>
-                            <span>Ban công</span>
+    @if (!Model.Any() && ViewData.ModelState.IsValid)
+    {
+        <p role="status"
+           style="padding:24px;background:white;border-radius:12px;">
+            Không còn phòng trống phù hợp.
+            Vui lòng đổi ngày hoặc chọn loại phòng khác.
+        </p>
+    }
+
+    @foreach (var group in Model.GroupBy(r => r.Room_Types))
+    {
+        <section style="margin-bottom:32px;">
+            <h2 style="font-size:24px;color:#563477;margin-bottom:16px;">
+                @group.Key.ten_loai
+                <small style="font-size:16px;font-weight:400;">
+                    — @group.Count() phòng trống
+                </small>
+            </h2>
+
+            <div class="room-list-items">
+                @foreach (var room in group)
+                {
+                    string name = names.ContainsKey(room.room_id)
+                        ? names[room.room_id]
+                        : "Phòng nghỉ";
+
+                    string photo = photos.ContainsKey(room.room_id)
+                        && !string.IsNullOrWhiteSpace(photos[room.room_id])
+                        ? photos[room.room_id]
+                        : fallback;
+
+                    <article class="room-detail-card"
+                             data-room-id="@room.room_id"
+                             data-type-id="@room.type_id">
+
+                        <div class="room-image">
+                            <span aria-hidden="true">Ảnh phòng đang cập nhật</span>
+
+                            <img src="@photo"
+                                 alt="@name"
+                                 loading="lazy"
+                                 decoding="async"
+                                 data-fallback="@fallback"
+                                 onerror="if (!this.dataset.failed) { this.dataset.failed='1'; this.src=this.dataset.fallback; } else { this.hidden=true; }" />
                         </div>
-                        <div class="amenity-item" style="display: flex; align-items: center; gap: 8px;">
-                            <span class="amenity-check">✓</span>
-                            <span>Tối đa @room.SoNguoi người</span>
+
+                        <div class="room-content">
+                            <h3>@name</h3>
+                            <p>@room.Room_Types.ten_loai</p>
+
+                            <p class="room-price">
+                                @room.Room_Types.gia_tien.Value.ToString("N0", culture)đ / đêm
+                            </p>
+
+                            <div class="room-amenities">
+                                <span>
+                                    Tối đa @(room.Room_Types.suc_chua ?? 2) khách
+                                </span>
+                                <span>
+                                    Diện tích:
+                                    @(room.Room_Types.dien_tich ?? "Đang cập nhật")
+                                </span>
+                                <span>
+                                    @(room.Room_Types.giuong ?? "Đang cập nhật giường")
+                                </span>
+                                <span>
+                                    @(room.Room_Types.view_phong ?? "Đang cập nhật hướng phòng")
+                                </span>
+                            </div>
+
+                            <p style="margin-bottom:16px;">
+                                @room.Room_Types.tien_nghi
+                            </p>
+
+                            <a class="room-button"
+                               href="@Url.Action("Reserve", "Bookings", new {
+                                   room_id = room.room_id,
+                                   ngay_checkin = start.ToString("yyyy-MM-dd"),
+                                   ngay_checkout = end.ToString("yyyy-MM-dd")
+                               })">
+                                Đặt phòng này
+                            </a>
                         </div>
-
-                        <div class="amenity-item" style="display: flex; align-items: center; gap: 8px;">
-                            <span class="amenity-check">✓</span>
-                            <span>Wi-Fi miễn phí</span>
-                        </div>
-
-                        <div class="amenity-item" style="display: flex; align-items: center; gap: 8px;">
-                            <span class="amenity-check">✓</span>
-                            <span>Điều hòa</span>
-                        </div>
-
-                        <div class="amenity-item" style="display: flex; align-items: center; gap: 8px;">
-                            <span class="amenity-check">✓</span>
-                            <span>Diện tích: @room.DienTich m²</span>
-                        </div>
-
-                        <div class="amenity-item" style="display: flex; align-items: center; gap: 8px;">
-                            <span class="amenity-check">✓</span>
-                            <span>Phòng tắm riêng</span>
-                        </div>
-
-                    </div>
-
-                    <!-- NÚT BẤM CHUYỂN DỮ LIỆU CỤ THỂ SANG TRANG ĐẶT PHÒNG -->
-                    <a href="@Url.Action("Create", "Bookings", new {
-                        type_id = currentTypeId,
-                        roomName = room.Ten,
-                        price = room.Gia,
-                        image = room.Anh,
-                        area = room.DienTich,
-                        capacity = room.SoNguoi
-                    })" class="room-button">
-                        Xem chi tiết
-                    </a>
-
-                </div>
+                    </article>
+                }
             </div>
-        }
-
-        @if (danhSachPhong.Count == 0)
-        {
-            <div style="text-align: center; padding: 40px;">
-                <p style="font-size: 1.2rem; color: #6c757d;">Hiện chưa có phòng thuộc loại này.</p>
-            </div>
-        }
-
-    </div>
-
+        </section>
+    }
 </div>
+
+<script>
+    document.querySelector('input[name="ngay_checkin"]')
+        .addEventListener('change', function () {
+            const checkout = document.querySelector(
+                'input[name="ngay_checkout"]'
+            );
+
+            if (!this.value) return;
+
+            const next = new Date(this.value + 'T00:00:00Z');
+            next.setUTCDate(next.getUTCDate() + 1);
+
+            checkout.min = next.toISOString().slice(0, 10);
+
+            if (!checkout.value || checkout.value <= this.value) {
+                checkout.value = checkout.min;
+            }
+        });
+</script>

@@ -1,0 +1,838 @@
+﻿@model Khách_Sạn_5_sao.Controllers.MyBookingsController.LookupPage
+@using System.Globalization
+@using System.Linq
+
+@{
+    ViewBag.Title = "Đơn đặt phòng của tôi";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+    var culture = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<style>
+    .my-bookings {
+        max-width: 960px;
+        margin: auto;
+        color: #303344;
+        scroll-margin-top: 180px;
+    }
+
+        .my-bookings h1 {
+            font-size: 28px;
+            color: #5c3c92;
+            margin: 0 0 8px;
+        }
+
+        .my-bookings .hint {
+            color: #657080;
+            margin: 0 0 22px;
+        }
+
+        .my-bookings .panel {
+            background: white;
+            border: 1px solid #e6e1ed;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: 0 3px 12px #00000006;
+        }
+
+        .my-bookings .panel-title {
+            background: #5c3c92;
+            color: white;
+            padding: 16px 22px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .my-bookings h2 {
+            font-size: 19px;
+            margin: 0;
+            color: inherit;
+        }
+
+        .my-bookings .panel-body {
+            padding: 22px;
+        }
+
+        .my-bookings .lookup-form {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr auto;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .my-bookings label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .my-bookings input {
+            width: 100%;
+            min-width: 0;
+            border: 1px solid #d8dce5;
+            border-radius: 6px;
+            padding: 11px;
+            font: inherit;
+        }
+
+            .my-bookings input:focus {
+                outline: 2px solid #cdbfe6;
+                outline-offset: 1px;
+            }
+
+        .my-bookings button, .my-bookings .book-again {
+            display: inline-block;
+            background: #5c3c92;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .my-bookings .lookup-button {
+            margin-top: 32px;
+            white-space: nowrap;
+        }
+
+        .my-bookings .validation-summary-errors, .my-bookings .field-validation-error {
+            color: #b42445;
+        }
+
+        .my-bookings .validation-summary-errors {
+            padding: 12px 18px;
+            margin-bottom: 18px;
+            background: #fff1f4;
+            border-radius: 6px;
+        }
+
+            .my-bookings .validation-summary-errors ul {
+                margin: 0;
+                padding-left: 18px;
+            }
+
+        .my-bookings .validation-summary-valid {
+            display: none;
+        }
+
+        .my-bookings .status {
+            background: white;
+            color: #5c3c92;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .my-bookings .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .my-bookings .info-box {
+            background: #f8f9fc;
+            border: 1px solid #e1e4ec;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+            .my-bookings .info-box p {
+                margin: 0 0 8px;
+                overflow-wrap: anywhere;
+            }
+
+                .my-bookings .info-box p:last-child {
+                    margin-bottom: 0;
+                }
+
+        .my-bookings h3 {
+            color: #5c3c92;
+            font-size: 17px;
+            margin: 22px 0 12px;
+        }
+
+        .my-bookings .table-wrap {
+            overflow-x: auto;
+        }
+
+        .my-bookings table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .my-bookings th, .my-bookings td {
+            text-align: left;
+            padding: 13px 10px;
+            border-bottom: 1px solid #e6e1ed;
+        }
+
+        .my-bookings th {
+            background: #f3eff8;
+            color: #5c3c92;
+        }
+
+        .my-bookings .price {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .my-bookings .service-list {
+            display: block;
+            padding-left: 20px;
+        }
+
+        .my-bookings .totals {
+            margin: 24px 0 0 auto;
+            max-width: 380px;
+            background: #f8f9fc;
+            padding: 18px;
+            border-radius: 8px;
+        }
+
+        .my-bookings .total-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        .my-bookings .grand-total {
+            color: #e12e51;
+            font-size: 20px;
+            font-weight: 700;
+            border-top: 1px solid #d8dce5;
+            padding-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .my-bookings .note {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .my-bookings .notice {
+            padding: 14px 16px;
+            background: #f3eff8;
+            border: 1px solid #d9cdeb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .my-bookings .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 12px;
+        }
+
+        .my-bookings button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .my-bookings .bank-box {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 20px;
+            padding: 18px;
+            background: #f8f9fc;
+            border: 1px solid #e1e4ec;
+            border-radius: 8px;
+        }
+
+        .my-bookings .bank-qr {
+            width: 100%;
+            max-width: 240px;
+            height: auto;
+        }
+
+        .my-bookings .bank-box p {
+            margin: 0 0 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .my-bookings .bank-box button {
+            margin-top: 12px;
+        }
+
+        .my-bookings .danger {
+            background: #b72b49;
+        }
+
+        .my-bookings .cancel-box {
+            border-top: 1px solid #e6e1ed;
+            margin-top: 24px;
+            padding-top: 4px;
+        }
+
+        .my-bookings textarea {
+            width: 100%;
+            min-height: 90px;
+            padding: 12px;
+            border: 1px solid #d8dce5;
+            border-radius: 6px;
+            font: inherit;
+            margin: 8px 0 12px;
+        }
+
+        .my-bookings .confirm-check {
+            display: flex;
+            gap: 8px;
+            align-items: start;
+            font-weight: 400;
+            margin: 10px 0 16px;
+        }
+
+            .my-bookings .confirm-check input {
+                width: auto;
+                margin-top: 6px;
+            }
+
+    @@media(max-width:700px) {
+        .my-bookings .lookup-form, .my-bookings .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .my-bookings .lookup-button {
+            margin-top: 0;
+            width: 100%;
+        }
+
+        .my-bookings .panel-body {
+            padding: 16px;
+        }
+
+        .my-bookings .total-line {
+            flex-wrap: wrap;
+        }
+
+        .my-bookings .payment-methods, .my-bookings .bank-box {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<main class="my-bookings" id="my-bookings">
+    <h1>Đơn đặt phòng của tôi</h1>
+    <p class="hint">
+        Nhập mã đơn trên phiếu xác nhận và số điện thoại
+        bạn đã dùng khi đặt phòng.
+    </p>
+
+    @if (TempData["BookingMessage"] != null)
+    {
+        <div class="notice" role="status">
+            @TempData["BookingMessage"]
+        </div>
+    }
+
+    <section class="panel" aria-labelledby="lookup-title">
+        <div class="panel-title">
+            <h2 id="lookup-title">Tra cứu đơn đặt phòng</h2>
+        </div>
+
+        <div class="panel-body">
+            <form action="@Url.Action("Index", "MyBookings")#my-bookings"
+                  method="post">
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(false, "", new { role = "alert" })
+
+                <div class="lookup-form">
+                    <div>
+                        <label for="BookingId">Mã đơn đặt phòng</label>
+                        @Html.TextBoxFor(m => m.BookingId, new
+                        {
+                            type = "number",
+                            min = "1",
+                            max = "2147483647",
+                            required = "required",
+                            placeholder = "Ví dụ: 15",
+                            inputmode = "numeric"
+                        })
+                    </div>
+
+                    <div>
+                        <label for="Phone">Số điện thoại lúc đặt</label>
+                        @Html.TextBoxFor(m => m.Phone, new
+                        {
+                            type = "tel",
+                            maxlength = "32",
+                            required = "required",
+                            placeholder = "Ví dụ: 0912345678",
+                            autocomplete = "tel"
+                        })
+                    </div>
+
+                    <button class="lookup-button" type="submit">
+                        Xem đơn đã đặt
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    @if (Model.Order != null)
+    {
+        var order = Model.Order;
+        string bookingStatus = order.trang_thai;
+
+        if (new[]
+        {
+            "Đã xác nhận",
+            "Chờ thanh toán",
+            "Chờ xác nhận",
+            "Chờ xử lý"
+        }.Contains(bookingStatus))
+        {
+            bookingStatus =
+                Model.Payment.CancellationStatus == "REQUESTED"
+                ? "Chờ xét hủy"
+                : Model.Payment.PaymentStatus == "PAID"
+                    ? "Đã xác nhận"
+                    : Model.Payment.TransferReported
+                        ? "Chờ đối soát"
+                        : "Chờ thanh toán";
+        }
+
+        int nights =
+            order.ngay_checkin.HasValue && order.ngay_checkout.HasValue
+            ? Math.Max(
+                0,
+                (order.ngay_checkout.Value.Date
+                    - order.ngay_checkin.Value.Date).Days)
+            : 0;
+
+        decimal roomTotal = Model.Rooms.Sum(r => r.Rate) * nights;
+
+        <section class="panel order-result" aria-labelledby="order-title">
+            <div class="panel-title">
+                <h2 id="order-title">Đơn đặt phòng #@order.booking_id</h2>
+                <span class="status">
+                    @(string.IsNullOrWhiteSpace(bookingStatus)
+                        ? "Chưa cập nhật trạng thái"
+                        : bookingStatus)
+                </span>
+            </div>
+
+            <div class="panel-body">
+                <div class="info-grid">
+                    <div class="info-box">
+                        <p><strong>Khách đặt:</strong> @order.User.ho_ten</p>
+
+                        <p>
+                            <strong>Ngày đặt:</strong>
+                            @(order.ngay_dat.HasValue
+                                ? order.ngay_dat.Value.ToString("dd/MM/yyyy HH:mm")
+                                : "Chưa cập nhật")
+                        </p>
+
+                        <p>
+                            <strong>Số khách:</strong>
+                            @(order.so_nguoi_lon ?? 0) người lớn,
+                            @(order.so_tre_em ?? 0) trẻ em
+                        </p>
+                    </div>
+
+                    <div class="info-box">
+                        <p>
+                            <strong>Nhận phòng:</strong>
+                            @(order.ngay_checkin.HasValue
+                                ? order.ngay_checkin.Value.ToString("dd/MM/yyyy")
+                                : "Chưa cập nhật")
+                        </p>
+
+                        <p>
+                            <strong>Trả phòng:</strong>
+                            @(order.ngay_checkout.HasValue
+                                ? order.ngay_checkout.Value.ToString("dd/MM/yyyy")
+                                : "Chưa cập nhật")
+                        </p>
+
+                        @if (nights > 0)
+                        {
+                            <p><strong>Thời gian lưu trú:</strong> @nights đêm</p>
+                        }
+                    </div>
+                </div>
+
+                <h3>Phòng đã đặt</h3>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">Tên phòng</th>
+                                <th scope="col">Loại phòng</th>
+                                <th scope="col" class="price">Giá / đêm</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var room in Model.Rooms)
+                            {
+                                <tr>
+                                    <td><strong>@room.Name</strong></td>
+                                    <td>@room.TypeName</td>
+                                    <td class="price">
+                                        @room.Rate.ToString("N0", culture) đ
+                                    </td>
+                                </tr>
+                            }
+
+                            @if (Model.Rooms.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="3">
+                                        Chưa có thông tin phòng trong đơn.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (Model.Options != null)
+                {
+                    <h3>Dịch vụ đi kèm</h3>
+
+                    if (Model.Services.Count > 0)
+                    {
+                        <ul class="service-list">
+                            @foreach (var service in Model.Services)
+                            {
+                                <li>@service</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>Không chọn dịch vụ bổ sung.</p>
+                    }
+                }
+
+                @if (!string.IsNullOrWhiteSpace(order.ghi_chu))
+                {
+                    <h3>Yêu cầu của bạn</h3>
+                    <p class="note">@order.ghi_chu</p>
+                }
+
+                <div class="totals">
+                    @if (nights > 0 && Model.Rooms.Count > 0)
+                    {
+                        <div class="total-line">
+                            <span>Tiền phòng (@nights đêm)</span>
+                            <strong>@roomTotal.ToString("N0", culture) đ</strong>
+                        </div>
+                    }
+
+                    @if (Model.Options != null)
+                    {
+                        <div class="total-line">
+                            <span>Dịch vụ đi kèm</span>
+                            <strong>
+                                @Model.Options.ServiceTotal.ToString("N0", culture) đ
+                            </strong>
+                        </div>
+
+                        if (Model.Options.DiscountAmount > 0)
+                        {
+                            <div class="total-line">
+                                <span>
+                                    Ưu đãi @Model.Options.DiscountCode
+                                    (@Model.Options.DiscountPercent.ToString("0.##", culture)%)
+                                </span>
+                                <strong>
+                                    −@Model.Options.DiscountAmount.ToString("N0", culture) đ
+                                </strong>
+                            </div>
+                        }
+                    }
+
+                    <div class="total-line grand-total">
+                        <span>Tổng tiền</span>
+                        <strong>
+                            @((order.tong_tien ?? 0).ToString("N0", culture)) đ
+                        </strong>
+                    </div>
+                </div>
+
+                <h3>Thanh toán</h3>
+
+                <p class="payment-status">
+                    <strong>Trạng thái:</strong>
+                    @(Model.Payment.PaymentStatus == "PAID"
+                        ? (Model.Payment.IsDemo
+                            ? "Giao dịch thử nghiệm đã xác nhận"
+                            : "Đã thanh toán")
+                        : Model.Payment.PaymentStatus == "PENDING"
+                            ? (Model.Payment.TransferReported
+                                ? "Đã báo chuyển khoản — chờ đối soát"
+                                : "Chờ chuyển khoản / đối soát")
+                            : "Chưa có khoản thanh toán được xác nhận")
+                </p>
+
+                @if (Model.Payment.PaymentStatus == "PAID")
+                {
+                    <p>
+                        <strong>Số tiền đã nhận:</strong>
+                        @Model.Payment.AmountPaid.ToString("N0", culture) đ
+                    </p>
+                }
+
+                @if (Model.CanCancel && Model.Payment.PaymentStatus == "UNPAID")
+                {
+                    <div class="payment-methods">
+                        <form action="@Url.Action("BankTransfer", "MyBookings")"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden"
+                                   name="bookingId"
+                                   value="@order.booking_id" />
+
+                            <button type="submit">Ngân hàng / VietQR</button>
+                        </form>
+
+                        <button type="button" disabled
+                                title="Thanh toán MoMo hiện chưa khả dụng">
+                            MoMo — chưa khả dụng
+                        </button>
+
+                        <button type="button" disabled
+                                title="Thanh toán thẻ hiện chưa khả dụng">
+                            Thẻ — chưa khả dụng
+                        </button>
+                    </div>
+
+                    <p class="hint">
+                        Bạn cũng có thể thanh toán tại khách sạn
+                        theo hình thức đã chọn khi đặt.
+                    </p>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.BankQrUrl))
+                {
+                    <div class="bank-box">
+                        <img class="bank-qr"
+                             src="@Model.BankQrUrl"
+                             alt="QR chuyển khoản Techcombank cho đơn này"
+                             onerror="this.hidden=true;" />
+
+                        <div>
+                            <p><strong>Ngân hàng:</strong> Techcombank</p>
+                            <p><strong>Số tài khoản:</strong> 2044444444444</p>
+                            <p><strong>Chủ tài khoản:</strong> Bùi Tuấn Anh</p>
+
+                            <p>
+                                <strong>Số tiền:</strong>
+                                @((order.tong_tien ?? 0).ToString("N0", culture)) đ
+                            </p>
+
+                            <p>
+                                <strong>Nội dung chuyển khoản:</strong>
+                                <span id="transfer-reference">@("MLH" + order.booking_id)</span>
+                            </p>
+
+                            <p>
+                                Quét QR bằng ứng dụng ngân hàng và kiểm tra
+                                thông tin người nhận trước khi chuyển.
+                            </p>
+
+                            <form action="@Url.Action("ReportTransfer", "MyBookings")"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="bookingId"
+                                       value="@order.booking_id" />
+
+                                <button type="submit">Tôi đã chuyển khoản</button>
+                            </form>
+
+                            <p class="hint">
+                                Nút này chỉ báo để khách sạn đối soát,
+                                chưa xác nhận đã nhận tiền.
+                            </p>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.Payment.RefundStatus != "NONE")
+                {
+                    <h3>Hoàn tiền</h3>
+
+                    <div class="refund-status notice">
+                        @if (Model.Payment.RefundStatus == "REFUNDED")
+                        {
+                            <p>
+                                Đã hoàn tiền@(Model.Payment.IsDemo ? " (thử nghiệm)" : ""):
+                                <strong>
+                                    @Model.Payment.AmountRefunded.ToString("N0", culture) đ
+                                </strong>
+                            </p>
+                        }
+                        else if (Model.Payment.RefundStatus == "REVIEW")
+                        {
+                            <p>
+                                Yêu cầu hủy đang được khách sạn xét.
+                                Đơn vẫn được giữ; chưa xác nhận số tiền hoàn.
+                            </p>
+                        }
+                        else if (Model.Payment.RefundStatus == "REJECTED")
+                        {
+                            <p>
+                                Yêu cầu hủy chưa được chấp thuận.
+                                Vui lòng liên hệ khách sạn.
+                            </p>
+                        }
+                        else if (Model.Payment.AmountPaid > 0)
+                        {
+                            <p>
+                                Chờ xử lý hoàn tiền:
+                                <strong>
+                                    @Model.Payment.RefundRequested.ToString("N0", culture) đ
+                                </strong>.
+                                Tiền chưa được hoàn.
+                            </p>
+                        }
+                        else
+                        {
+                            <p>
+                                Chờ đối soát khoản chuyển trước khi xác nhận
+                                số tiền cần hoàn.
+                            </p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Payment.ReviewNote))
+                        {
+                            <p>
+                                <strong>Phản hồi khách sạn:</strong>
+                                @Model.Payment.ReviewNote
+                            </p>
+                        }
+                    </div>
+                }
+
+                <div class="cancel-box">
+                    <h3>Hủy đơn đặt phòng</h3>
+
+                    <p>
+                        Giờ nhận phòng áp dụng:
+                        <strong>14:00 (giờ Việt Nam)</strong>.
+                        Hoàn 100% khoản đã thanh toán nếu hủy trước giờ
+                        nhận phòng ít nhất 24 giờ; sát giờ cần khách sạn xét.
+                    </p>
+
+                    <p>
+                        <strong>Hạn hủy miễn phí:</strong>
+                        @Model.Payment.FreeCancelUntilUtc.AddHours(7).ToString("dd/MM/yyyy HH:mm")
+                    </p>
+
+                    @if (Model.CanCancel)
+                    {
+                        <p>@Model.CancelExplanation</p>
+
+                        if (Model.ShowCancelConfirmation)
+                        {
+                            <form action="@Url.Action("Cancel", "MyBookings")"
+                                  method="post"
+                                  class="cancel-confirmation">
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="bookingId"
+                                       value="@order.booking_id" />
+
+                                <label for="cancel-reason">Lý do hủy</label>
+
+                                <textarea id="cancel-reason"
+                                          name="reason"
+                                          minlength="3"
+                                          maxlength="500"
+                                          required></textarea>
+
+                                <label class="confirm-check">
+                                    <input type="checkbox"
+                                           name="confirm"
+                                           value="true"
+                                           required />
+                                    Tôi đã đọc chính sách và xác nhận
+                                    gửi yêu cầu hủy đơn này.
+                                </label>
+
+                                <button type="submit" class="danger">
+                                    Xác nhận hủy / gửi yêu cầu
+                                </button>
+
+                                <a href="@Url.Action("Manage", "MyBookings", new { id = order.booking_id })">
+                                    Giữ lại đơn
+                                </a>
+                            </form>
+                        }
+                        else
+                        {
+                            <form action="@Url.Action("PrepareCancel", "MyBookings")"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="bookingId"
+                                       value="@order.booking_id" />
+
+                                <button type="submit" class="danger">
+                                    Hủy đơn này
+                                </button>
+                            </form>
+                        }
+                    }
+                    else if (Model.Payment.CancellationStatus == "REQUESTED")
+                    {
+                        <p>
+                            Đã gửi yêu cầu hủy, đang chờ khách sạn xét.
+                            Phòng vẫn được giữ cho bạn.
+                        </p>
+                    }
+                    else if (order.trang_thai == "Đã hủy")
+                    {
+                        <p>
+                            Đơn đã hủy. Lịch sử đơn và các giao dịch
+                            được giữ lại để tra cứu.
+                        </p>
+                    }
+                    else
+                    {
+                        <p>
+                            Đơn này không thể tự hủy trên web.
+                            Vui lòng liên hệ khách sạn.
+                        </p>
+                    }
+                </div>
+
+                <p>
+                    <a href="@Url.Action("Manage", "MyBookings", new { id = order.booking_id })">
+                        Cập nhật trạng thái đơn
+                    </a>
+                </p>
+            </div>
+        </section>
+    }
+
+    <a class="book-again" href="@Url.Action("Index", "Bookings")">
+        Đặt thêm phòng
+    </a>
+</main>
+
+@if (Model.Order != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.location.hash) {
+                document.getElementById('my-bookings').scrollIntoView();
+            }
+        });
+    </script>
+}

@@ -1,0 +1,612 @@
+﻿@model Khách_Sạn_5_sao.Controllers.ResidentServicesController.Page
+@using System
+@using System.Linq
+@using System.Globalization
+@using Khách_Sạn_5_sao.Controllers
+
+@functions {
+    private string Money(decimal value)
+    {
+        return value == 0
+            ? "Miễn phí"
+            : value.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + " đ";
+    }
+
+    private string PaymentLabel(ResidentServicesController.OrderRow order)
+    {
+        if (order.Price == 0) return "Miễn phí theo đơn phòng";
+
+        switch (order.PaymentStatus)
+        {
+            case "PAID": return "Đã thanh toán đủ";
+            case "DEPOSIT_PAID": return "Đã nhận cọc";
+            case "REPORTED": return "Đang chờ đối soát";
+            case "REVIEW": return "Khách sạn đang kiểm tra khoản tiền và lịch";
+            case "REFUND_REVIEW": return "Chờ xét hủy/hoàn tiền";
+            case "REFUNDED": return "Đã hoàn tiền";
+            case "PART_REFUND": return "Đã hoàn một phần";
+            default: return "Chờ thanh toán";
+        }
+    }
+}
+
+@{
+    ViewBag.Title = "Dịch vụ khách lưu trú";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+
+    var groups = new[] {
+        new {
+            Title = "Gói thường",
+            Items = Model.Services.Where(s => !s.IsCombo).ToList()
+        },
+        new {
+            Title = "Gói combo",
+            Items = Model.Services.Where(s => s.IsCombo).ToList()
+        }
+    };
+}
+
+<style>
+    .hotel-banner .banner {
+        height: 240px
+    }
+
+    .hotel-banner .banner-content {
+        top: 50%
+    }
+
+    .resident-services {
+        max-width: 1040px;
+        margin: auto;
+        color: #303344;
+        scroll-margin-top: 180px
+    }
+
+        .resident-services h1,
+        .resident-services h2,
+        .resident-services h3 {
+            color: #5c3c92
+        }
+
+        .resident-services h1 {
+            font-size: 28px
+        }
+
+        .resident-services h2 {
+            font-size: 23px;
+            margin: 25px 0 16px
+        }
+
+        .resident-services .box {
+            background: #fff;
+            border: 1px solid #e6e1ed;
+            border-radius: 10px;
+            padding: 22px;
+            margin: 20px 0
+        }
+
+        .resident-services .notice {
+            padding: 16px;
+            background: #f3eff8;
+            border-radius: 8px;
+            margin: 14px 0
+        }
+
+        .resident-services .button {
+            display: inline-block;
+            background: #5c3c92;
+            color: #fff;
+            border: 0;
+            border-radius: 6px;
+            padding: 11px 16px;
+            font: inherit;
+            text-decoration: none;
+            cursor: pointer
+        }
+
+            .resident-services .button:disabled {
+                opacity: .5;
+                cursor: default
+            }
+
+        .resident-services .grid {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 18px
+        }
+
+        .resident-services .service {
+            border: 1px solid #e6e1ed;
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden
+        }
+
+            .resident-services .service img {
+                width: 100%;
+                height: 175px;
+                object-fit: cover
+            }
+
+        .resident-services .service-body {
+            padding: 18px
+        }
+
+        .resident-services .service h3 {
+            font-size: 20px
+        }
+
+        .resident-services .price {
+            font-weight: 700;
+            color: #dc3155
+        }
+
+        .resident-services .old-price {
+            color: #6d7583;
+            text-decoration: line-through
+        }
+
+        .resident-services .fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px
+        }
+
+        .resident-services label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px
+        }
+
+        .resident-services input:not([type=checkbox]),
+        .resident-services select,
+        .resident-services textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d6dbe5;
+            border-radius: 6px;
+            font: inherit;
+            min-width: 0
+        }
+
+        .resident-services .wide {
+            grid-column: 1/-1
+        }
+
+        .resident-services .validation-summary-errors {
+            color: #b32444;
+            background: #fff0f3;
+            padding: 14px;
+            border-radius: 6px
+        }
+
+        .resident-services .order {
+            border-bottom: 1px solid #e6e1ed;
+            padding: 18px 0
+        }
+
+            .resident-services .order:last-child {
+                border: 0
+            }
+
+        .resident-services .danger {
+            background: #b93152
+        }
+
+    #resident-orders, #resident-form {
+        scroll-margin-top: 180px
+    }
+
+    @@media(max-width:800px) {
+        .resident-services .grid {
+            grid-template-columns: repeat(2,minmax(0,1fr))
+        }
+    }
+
+    @@media(max-width:600px) {
+        .resident-services .grid,
+        .resident-services .fields {
+            grid-template-columns: 1fr
+        }
+
+        .resident-services, #resident-orders, #resident-form {
+            scroll-margin-top: 280px
+        }
+    }
+</style>
+
+<main class="resident-services" id="resident-services">
+    <h1>Dịch vụ ưu đãi dành cho khách lưu trú</h1>
+
+    @Html.ValidationSummary(false, "", new { role = "alert" })
+
+    @if (TempData["ResidentMessage"] != null)
+    {
+        <div class="notice" role="status">@TempData["ResidentMessage"]</div>
+    }
+
+    @if (Model.Room == null)
+    {
+        <section class="box">
+            <h2>Tra cứu đơn phòng của bạn</h2>
+
+            <form action="@Url.Action("Access")" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="fields">
+                    <div>
+                        <label for="lookup-id">Mã đơn đặt phòng</label>
+                        <input id="lookup-id" name="id" type="number"
+                               min="1" value="@Model.LookupId" required />
+                    </div>
+                    <div>
+                        <label for="lookup-phone">Số điện thoại lúc đặt</label>
+                        <input id="lookup-phone" name="phone" type="tel"
+                               maxlength="32" required />
+                    </div>
+                    <div class="wide">
+                        <button class="button" type="submit">
+                            Xem dịch vụ ưu đãi
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    }
+    else
+    {
+        var room = Model.Room;
+
+        <div class="box">
+            <p><strong>Đơn phòng #@room.Id:</strong> @room.Status</p>
+            <p><strong>Khách đặt:</strong> @room.Name — @room.Guests khách</p>
+            <p>
+                <strong>Thời gian sử dụng ưu đãi:</strong>
+                @room.CheckIn.ToString("dd/MM/yyyy HH:mm")
+                đến @room.CheckOut.ToString("dd/MM/yyyy HH:mm")
+                — giờ Việt Nam.
+            </p>
+
+            <a class="button"
+               href="@Url.Action("Manage","MyBookings",new { id=room.Id })#my-bookings">
+                Thanh toán / xem đơn phòng
+            </a>
+
+            @if (!room.Eligible)
+            {
+                <div class="notice">
+                    Chưa thể đặt lịch ưu đãi. Đơn phòng cần được xác nhận
+                    và đối soát tiền, không trong quá trình hủy và chưa hết
+                    thời gian lưu trú. Bạn có thể xem trước bảng giá bên dưới.
+                </div>
+            }
+
+            <p>
+                Giá tính theo người. Dịch vụ trả phí được thanh toán riêng
+                với tiền phòng; có thể cọc 30% hoặc trả đủ 100%.
+                Mã giảm giá phòng không cộng dồn vào giá ưu đãi này.
+            </p>
+        </div>
+
+        foreach (var group in groups)
+        {
+            if (group.Items.Count == 0) { continue; }
+
+            <h2>@group.Title</h2>
+
+            <div class="grid">
+                @foreach (var service in group.Items)
+                {
+                    <article class="service">
+                        @if (!string.IsNullOrWhiteSpace(service.ImageUrl))
+                        {
+                            <img src="@service.ImageUrl" alt="@service.Name"
+                                 loading="lazy" onerror="this.hidden=true;" />
+                        }
+
+                        <div class="service-body">
+                            <h3>@service.Name</h3>
+                            <p>@service.Description</p>
+                            <p class="old-price">
+                                Khách vãng lai: @Money(service.WalkInPrice)/người
+                            </p>
+                            <p class="price">
+                                Khách lưu trú:
+                                @Money(service.Price)@(service.Price == 0 ? "" : " / người")
+                            </p>
+
+                            @if (room.Eligible)
+                            {
+                                <button class="button choose-resident"
+                                        type="button"
+                                        data-service="@service.Id">
+                                    Chọn lịch
+                                </button>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+        if (room.Eligible)
+        {
+            <section class="box" id="resident-form">
+                <h2>Chọn lịch dịch vụ theo đơn phòng</h2>
+
+                <form action="@Url.Action("Book")"
+                      method="post" id="resident-booking">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="Id" value="@room.Id" />
+                    <input type="hidden" name="Token" value="@Model.Input.Token" />
+
+                    <div class="fields">
+                        <div>
+                            <label for="resident-service">Dịch vụ</label>
+                            <select name="ServiceId" id="resident-service" required>
+                                <option value="">-- Chọn dịch vụ --</option>
+                                @foreach (var service in Model.Services)
+                                {
+                                    <option value="@service.Id"
+                                            data-price="@service.Price.ToString(CultureInfo.InvariantCulture)"
+                                            selected="@(Model.Input.ServiceId == service.Id)">
+                                        @service.Name — @Money(service.Price)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="resident-date">Ngày sử dụng</label>
+                            <input id="resident-date" name="Date" type="date"
+                                   min="@room.CheckIn.ToString("yyyy-MM-dd")"
+                                   max="@room.CheckOut.ToString("yyyy-MM-dd")"
+                                   value="@Model.Input.Date.Value.ToString("yyyy-MM-dd")"
+                                   required />
+                        </div>
+
+                        <div>
+                            <label for="resident-slot">Khung giờ</label>
+                            <select id="resident-slot" name="SlotId"
+                                    data-selected="@Model.Input.SlotId" required>
+                                <option value="">
+                                    -- Chọn ngày và dịch vụ --
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="resident-guests">Số người</label>
+                            <input id="resident-guests" name="Guests"
+                                   type="number" min="1"
+                                   max="@Math.Min(20,room.Guests)"
+                                   value="@Model.Input.Guests" required />
+                        </div>
+
+                        <div class="wide" id="resident-payment-choice">
+                            <label for="resident-percent">Thanh toán dịch vụ</label>
+                            <select name="Percent" id="resident-percent">
+                                <option value="30"
+                                        selected="@(Model.Input.Percent == 30)">
+                                    Cọc 30% — trả phần còn lại khi đến
+                                </option>
+                                <option value="100"
+                                        selected="@(Model.Input.Percent == 100)">
+                                    Trả đủ 100%
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="wide notice">
+                            <strong id="resident-estimate">
+                                Chọn dịch vụ để xem tổng tiền.
+                            </strong>
+                            <p id="resident-availability"
+                               role="status" aria-live="polite"></p>
+                        </div>
+
+                        <div class="wide">
+                            <label>
+                                <input type="checkbox" name="Agree"
+                                       value="true" required />
+                                Tôi xác nhận lịch, số người và thông tin thanh toán.
+                            </label>
+                        </div>
+
+                        <div class="wide">
+                            <button class="button" id="resident-submit"
+                                    type="submit" disabled>
+                                Đặt lịch dịch vụ
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        }
+
+        <section class="box" id="resident-orders">
+            <h2>Dịch vụ đã đặt theo đơn phòng</h2>
+
+            @if (Model.Orders.Count == 0)
+            {
+                <p>Bạn chưa đặt dịch vụ theo đơn phòng này.</p>
+            }
+
+            @foreach (var order in Model.Orders)
+            {
+                <article class="order">
+                    <h3>@order.Name</h3>
+                    <p>
+                        <strong>Mã lịch:</strong> @order.Code
+                        — @DiningController.StatusText(order.Status)
+                    </p>
+                    <p>
+                        @order.VisitAt.ToString("dd/MM/yyyy HH:mm")
+                        — @order.Guests người
+                        — <strong>@Money(order.Total)</strong>
+                    </p>
+                    <p>@PaymentLabel(order)</p>
+                    <p>@order.Itinerary</p>
+
+                    @if (order.Price > 0)
+                    {
+                        <a class="button"
+                           href="@Url.Action("Open",new { id=room.Id,code=order.Code })">
+                            Thanh toán / xem / yêu cầu hủy
+                        </a>
+                    }
+                    else if (order.Status == "CONFIRMED"
+                        && order.VisitAt > DateTime.UtcNow.AddHours(7))
+                    {
+                        <form action="@Url.Action("CancelFree")" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="id" value="@room.Id" />
+                            <input type="hidden" name="code" value="@order.Code" />
+
+                            <label>
+                                Lý do hủy
+                                <input name="reason" minlength="3"
+                                       maxlength="500" required />
+                            </label>
+                            <p>
+                                <label>
+                                    <input type="checkbox" name="confirm"
+                                           value="true" required />
+                                    Tôi xác nhận hủy lịch miễn phí này.
+                                </label>
+                            </p>
+                            <button class="button danger" type="submit">
+                                Hủy lịch miễn phí
+                            </button>
+                        </form>
+                    }
+                </article>
+            }
+        </section>
+    }
+</main>
+
+@if (Model.Room != null && Model.Room.Eligible)
+{
+    <script>
+(function () {
+    const service = document.getElementById('resident-service');
+    const date = document.getElementById('resident-date');
+    const slot = document.getElementById('resident-slot');
+    const guests = document.getElementById('resident-guests');
+    const percent = document.getElementById('resident-percent');
+    const submit = document.getElementById('resident-submit');
+    const estimate = document.getElementById('resident-estimate');
+    const message = document.getElementById('resident-availability');
+
+    let sequence = 0, rows = [];
+    const money = n => new Intl.NumberFormat('vi-VN').format(n) + ' đ';
+
+    function total() {
+        const option = service.selectedOptions[0];
+        const price = Number(option?.dataset.price);
+        const count = Number(guests.value);
+        const free = service.value && price === 0;
+
+        document.getElementById('resident-payment-choice').hidden = !!free;
+
+        if (!Number.isInteger(count)
+            || count < 1 || count > Number(guests.max)) {
+            estimate.textContent = 'Số người phải từ 1 đến ' + guests.max + '.';
+            submit.disabled = true;
+            return;
+        }
+
+        estimate.textContent = !service.value
+            ? 'Chọn dịch vụ để xem tổng tiền.'
+            : free
+                ? 'Miễn phí theo đơn phòng. Lịch được xác nhận nếu còn đủ chỗ.'
+                : 'Tổng ' + money(price * count)
+                    + '. Thanh toán bước tiếp theo: '
+                    + money(Math.ceil(price * count * Number(percent.value) / 100))
+                    + '.';
+
+        submit.textContent = free
+            ? 'Xác nhận lịch miễn phí' : 'Giữ chỗ và thanh toán';
+
+        const chosen = rows.find(r => String(r.Id) === slot.value);
+
+        submit.disabled = !chosen
+            || !Number.isInteger(count)
+            || count < 1
+            || count > Number(guests.max)
+            || chosen.Remaining < count;
+
+        [...slot.options].forEach(o => {
+            const row = rows.find(r => String(r.Id) === o.value);
+            if (row) o.disabled = row.Remaining < count;
+        });
+    }
+
+    async function load() {
+        const current = ++sequence;
+        const previous = slot.value || slot.dataset.selected;
+
+        rows = [];
+        slot.innerHTML = '';
+        slot.add(new Option('-- Chọn khung giờ --', ''));
+        total();
+
+        if (!service.value || !date.value) return;
+
+        message.textContent = 'Đang kiểm tra chỗ...';
+
+        try {
+            const url = new URL('@Url.Action("Availability")', location.origin);
+            url.searchParams.set('id', '@Model.Room.Id');
+            url.searchParams.set('serviceId', service.value);
+            url.searchParams.set('date', date.value);
+
+            const response = await fetch(url, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('availability');
+
+            const data = await response.json();
+            if (current !== sequence) return;
+
+            rows = data;
+            rows.forEach(r => slot.add(new Option(
+                r.Time + ' — còn ' + Math.max(0, r.Remaining) + ' chỗ',
+                r.Id
+            )));
+
+            slot.value = previous || '';
+            slot.dataset.selected = '';
+
+            message.textContent = rows.length
+                ? 'Hệ thống kiểm tra lại chỗ và quyền ưu đãi khi bạn gửi đặt lịch.'
+                : 'Không có giờ phù hợp trong thời gian lưu trú. Hãy chọn ngày hoặc dịch vụ khác.';
+        } catch (e) {
+            if (current !== sequence) return;
+            message.textContent =
+                'Chưa kiểm tra được chỗ. Vui lòng tải lại hoặc chọn ngày khác.';
+        }
+
+        total();
+    }
+
+    document.querySelectorAll('.choose-resident').forEach(b => {
+        b.addEventListener('click', () => {
+            service.value = b.dataset.service;
+            load();
+            document.getElementById('resident-form')
+                .scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    service.addEventListener('change', load);
+    date.addEventListener('change', load);
+    guests.addEventListener('input', total);
+    percent.addEventListener('change', total);
+    slot.addEventListener('change', total);
+
+    load();
+})();
+    </script>
+}

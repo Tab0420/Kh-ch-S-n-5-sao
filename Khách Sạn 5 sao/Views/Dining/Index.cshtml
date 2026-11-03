@@ -1,0 +1,945 @@
+﻿@model Khách_Sạn_5_sao.Controllers.DiningController.BookingPage
+@using System
+@using System.Globalization
+@using System.Linq
+@using Khách_Sạn_5_sao.Controllers
+
+@functions {
+    private string PriceText(DiningController.ServiceRow service)
+    {
+        if (service == null) return "";
+
+        if (service.PricingMode == "PER_PERSON")
+            return service.UnitPrice.GetValueOrDefault()
+                .ToString("N0", CultureInfo.GetCultureInfo("vi-VN"))
+                + " đ / người";
+
+        if (service.PricingMode == "A_LA_CARTE")
+            return "Chi phí theo món gọi thực tế";
+
+        return "Liên hệ báo giá";
+    }
+}
+
+@{
+    ViewBag.Title = Model.GroupTitle;
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+
+    var regularServices = Model.Services.Where(s =>
+        string.IsNullOrEmpty(s.Code)
+        || !s.Code.StartsWith(
+            "COMBO_", StringComparison.OrdinalIgnoreCase)).ToList();
+
+    var comboServices = Model.Services.Where(s =>
+        !string.IsNullOrEmpty(s.Code)
+        && s.Code.StartsWith(
+            "COMBO_", StringComparison.OrdinalIgnoreCase)).ToList();
+
+    var serviceGroups = new[] {
+        new {
+            Title = "Gói thường",
+            Id = "regular-services",
+            Items = regularServices
+        },
+        new {
+            Title = "Gói combo",
+            Id = "combo-services",
+            Items = comboServices
+        }
+    };
+
+    var selected = Model.Services.FirstOrDefault(
+        s => Model.ServiceId.HasValue && s.Id == Model.ServiceId.Value);
+
+    bool showBooking =
+        (selected != null && Request.QueryString["open"] == "1")
+        || !ViewData.ModelState.IsValid;
+
+    string photo = selected != null
+        && !string.IsNullOrWhiteSpace(selected.ImageUrl)
+            ? selected.ImageUrl : null;
+}
+
+<style>
+    .hotel-banner {
+        position: relative;
+    }
+
+        .hotel-banner .banner {
+            height: 240px;
+        }
+
+        .hotel-banner .banner-content {
+            top: 50%;
+        }
+
+            .hotel-banner .banner-content h1 {
+                font-size: clamp(30px,4vw,52px);
+            }
+
+            .hotel-banner .banner-content p {
+                font-size: 16px;
+                letter-spacing: 2px;
+            }
+
+    .guest-services {
+        max-width: 1040px;
+        margin: auto;
+        color: #303344;
+    }
+
+        .guest-services h1,
+        .guest-services h2,
+        .guest-services h3 {
+            color: #5c3c92;
+        }
+
+        .guest-services h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .guest-services .intro {
+            color: #657080;
+            margin-bottom: 20px;
+        }
+
+        .guest-services .links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .guest-services .button {
+            display: inline-block;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 6px;
+            background: #5c3c92;
+            color: white;
+            font: inherit;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .guest-services .outline {
+            background: white;
+            color: #5c3c92;
+            border: 1px solid #5c3c92;
+        }
+
+        .guest-services .service-group {
+            margin-bottom: 32px;
+        }
+
+        .guest-services .group-title {
+            font-size: 24px;
+            margin: 0 0 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e6e1ed;
+        }
+
+        .guest-services .cards {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+            scroll-margin-top: 180px;
+        }
+
+        .guest-services .service-group .cards {
+            margin-bottom: 0;
+        }
+
+        .guest-services .service {
+            border: 1px solid #e6e1ed;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 14px #00000008;
+        }
+
+            .guest-services .service.is-selected {
+                border-color: #5c3c92;
+                box-shadow: 0 0 0 2px #e7def3;
+            }
+
+        .guest-services .picture {
+            height: 190px;
+            background: #f1ecf7;
+        }
+
+            .guest-services .picture img {
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: cover;
+            }
+
+        .guest-services .card-body {
+            padding: 20px;
+        }
+
+            .guest-services .card-body h2 {
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+
+        .guest-services .price {
+            color: #dc3155;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .guest-services .panel {
+            border: 1px solid #e6e1ed;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .guest-services .panel-title {
+            padding: 16px 22px;
+            background: #5c3c92;
+            color: white;
+        }
+
+            .guest-services .panel-title h2 {
+                color: inherit;
+                font-size: 20px;
+                margin: 0;
+            }
+
+        .guest-services .panel-body {
+            padding: 24px;
+        }
+
+        .guest-services .chosen {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 22px;
+            padding: 18px;
+            background: #faf8fd;
+            border: 1px solid #e4dbef;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .guest-services .chosen-picture {
+            height: 240px;
+            background: #eee7f6;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+            .guest-services .chosen-picture img {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .guest-services .chosen h3 {
+            font-size: 25px;
+            margin: 0 0 12px;
+        }
+
+        .guest-services .chosen p {
+            margin-bottom: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .guest-services .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .guest-services .wide {
+            grid-column: 1/-1;
+        }
+
+        .guest-services label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .guest-services input,
+        .guest-services select,
+        .guest-services textarea {
+            width: 100%;
+            min-width: 0;
+            padding: 11px;
+            border: 1px solid #d6dbe5;
+            border-radius: 6px;
+            font: inherit;
+            background: white;
+        }
+
+            .guest-services input:focus,
+            .guest-services select:focus,
+            .guest-services textarea:focus {
+                outline: 2px solid #d8c9ee;
+                outline-offset: 1px;
+            }
+
+        .guest-services textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .guest-services .notice {
+            padding: 16px;
+            background: #f3eff8;
+            border-radius: 8px;
+            color: #55436e;
+        }
+
+        .guest-services .agree {
+            display: flex;
+            gap: 9px;
+            align-items: start;
+            font-weight: 400;
+        }
+
+            .guest-services .agree input {
+                width: auto;
+                margin-top: 6px;
+            }
+
+        .guest-services .validation-summary-errors {
+            padding: 14px 18px;
+            background: #fff0f3;
+            color: #b32444;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+            .guest-services .validation-summary-errors ul {
+                padding-left: 18px;
+            }
+
+        .guest-services .validation-summary-valid {
+            display: none;
+        }
+
+    #dining-booking {
+        scroll-margin-top: 180px;
+    }
+
+    @@media(max-width:850px) {
+        .guest-services .cards {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+    }
+
+    @@media(max-width:650px) {
+        .guest-services .cards,
+        .guest-services .chosen,
+        .guest-services .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .guest-services .panel-body {
+            padding: 16px;
+        }
+
+        #dining-booking,
+        #service-cards {
+            scroll-margin-top: 280px;
+        }
+    }
+</style>
+
+<main class="guest-services" data-group="@Model.GroupCode">
+    <h1>@Model.GroupTitle</h1>
+
+    <p class="intro">
+        Dịch vụ dành cho khách vãng lai tại Moonlight Hotel.
+        Không cần đặt phòng. Chọn dịch vụ để xem ảnh, thông tin và đăng ký.
+    </p>
+
+    <div class="links">
+        <a class="button outline" href="@Url.Action("Lookup","Dining")">
+            Tra cứu yêu cầu đã đặt
+        </a>
+    </div>
+
+    <div id="service-cards">
+        @foreach (var group in serviceGroups)
+        {
+            if (group.Items.Count == 0) { continue; }
+
+            <section class="service-group" aria-labelledby="@group.Id">
+                <h2 class="group-title" id="@group.Id">@group.Title</h2>
+
+                <div class="cards">
+                    @foreach (var item in group.Items)
+                    {
+                        bool active = showBooking && Model.ServiceId == item.Id;
+
+                        <article class="service @(active ? "is-selected" : "")"
+                                 data-service="@item.Id"
+                                 data-mode="@item.PricingMode"
+                                 data-pay-online="@(item.PayOnline ? "1" : "0")"
+                                 data-price="@(item.UnitPrice.HasValue ? item.UnitPrice.Value.ToString(CultureInfo.InvariantCulture) : "")">
+
+                            <div class="picture">
+                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl"
+                                         alt="@item.Name"
+                                         loading="lazy"
+                                         onerror="this.hidden=true;" />
+                                }
+                            </div>
+
+                            <div class="card-body">
+                                <h2 class="service-name">@item.Name</h2>
+                                <span class="service-description" hidden>@item.Description</span>
+                                <p class="price service-price">@PriceText(item)</p>
+
+                                <a class="button select-service"
+                                   data-service="@item.Id"
+                                   aria-controls="dining-booking"
+                                   aria-expanded="@(active ? "true" : "false")"
+                                   href="@Url.Action("Index","Dining",new { group=Model.GroupCode,serviceId=item.Id,open=1 })#dining-booking">
+                                    @(active ? "Đang chọn" : "Chọn dịch vụ")
+                                </a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+
+    @if (Model.Services.Count == 0)
+    {
+        <div class="notice">
+            Nhóm này hiện chưa nhận đặt trực tuyến.
+            Vui lòng liên hệ khách sạn.
+        </div>
+    }
+    else
+    {
+        <section class="panel" id="dining-booking"
+                 style="@(showBooking ? "display:block;" : "display:none;")"
+                 aria-hidden="@(showBooking ? "false" : "true")">
+
+            <div class="panel-title">
+                <h2>Thông tin đặt dịch vụ</h2>
+            </div>
+
+            <div class="panel-body">
+                <div class="chosen" id="chosen-detail"
+                     style="@(selected != null ? "display:grid;" : "display:none;")">
+
+                    <div class="chosen-picture">
+                        <img id="chosen-photo"
+                             src="@photo"
+                             alt="@(selected == null ? "Dịch vụ" : selected.Name)"
+                             onload="this.hidden=false;"
+                             onerror="this.hidden=true;" />
+                    </div>
+
+                    <div>
+                        <h3 id="chosen-name">@(selected == null ? "" : selected.Name)</h3>
+                        <p id="chosen-description">@(selected == null ? "" : selected.Description)</p>
+                        <p id="chosen-price" class="price">@PriceText(selected)</p>
+                        <p>Chọn ngày, khung giờ và số người để kiểm tra lịch.</p>
+                    </div>
+                </div>
+
+                <p class="intro">
+                    Đặt trước ít nhất 30 phút, tối đa 90 ngày.
+                    Đoàn trên 20 người vui lòng liên hệ khách sạn.
+                </p>
+
+                <form action="@Url.Action("Index","Dining")#dining-booking"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.RequestToken)
+                    @Html.HiddenFor(m => m.GroupCode)
+                    @Html.ValidationSummary(false, "", new { role = "alert" })
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="ServiceId">Dịch vụ (*)</label>
+
+                            @Html.DropDownListFor(
+                                m => m.ServiceId,
+                                new SelectList(Model.Services, "Id", "Name"),
+                                "-- Chọn dịch vụ --",
+                                new { required = "required" })
+                        </div>
+
+                        <div>
+                            <label for="SlotId">Khung giờ đến (*)</label>
+
+                            <select id="SlotId" name="SlotId" required>
+                                <option value="">-- Chọn khung giờ --</option>
+
+                                @foreach (var slot in Model.Slots)
+                                {
+                                    if (Model.SlotId == slot.Id)
+                                    {
+                                        <option value="@slot.Id"
+                                                data-service="@slot.ServiceId"
+                                                selected>
+                                            @slot.Time — @slot.ServiceName
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@slot.Id"
+                                                data-service="@slot.ServiceId">
+                                            @slot.Time — @slot.ServiceName
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="VisitDate">Ngày đến (*)</label>
+
+                            @Html.TextBoxFor(m => m.VisitDate, "{0:yyyy-MM-dd}", new
+                            {
+                                type = "date",
+                                min = Model.Today.ToString("yyyy-MM-dd"),
+                                max = Model.Today.AddDays(90).ToString("yyyy-MM-dd"),
+                                required = "required"
+                            })
+                        </div>
+
+                        <div>
+                            <label for="Guests">Số người (*)</label>
+
+                            @Html.TextBoxFor(m => m.Guests, new
+                            {
+                                type = "number",
+                                min = "1",
+                                max = "20",
+                                step = "1",
+                                required = "required"
+                            })
+                        </div>
+
+                        <div>
+                            <label for="FullName">Họ và tên (*)</label>
+
+                            @Html.TextBoxFor(m => m.FullName, new
+                            {
+                                maxlength = "150",
+                                required = "required",
+                                autocomplete = "name"
+                            })
+                        </div>
+
+                        <div>
+                            <label for="Phone">Số điện thoại (*)</label>
+
+                            @Html.TextBoxFor(m => m.Phone, new
+                            {
+                                type = "tel",
+                                maxlength = "32",
+                                required = "required",
+                                autocomplete = "tel",
+                                placeholder = "Ví dụ: 0912345678"
+                            })
+                        </div>
+
+                        <div class="wide">
+                            <label for="Email">Email — không bắt buộc</label>
+
+                            @Html.TextBoxFor(m => m.Email, new
+                            {
+                                type = "email",
+                                maxlength = "255",
+                                autocomplete = "email"
+                            })
+                        </div>
+
+                        <div class="wide">
+                            <label for="Notes">Ghi chú</label>
+
+                            @Html.TextAreaFor(m => m.Notes, new
+                            {
+                                maxlength = "1000",
+                                placeholder = "Mong muốn về dịch vụ, khung giờ hoặc thông tin cần tư vấn..."
+                            })
+                        </div>
+
+                        <div class="wide" id="payment-choice"
+                             style="@(selected != null && selected.PayOnline ? "" : "display:none;")">
+
+                            <label for="PaymentPercent">
+                                Thanh toán để xác nhận lịch
+                            </label>
+
+                            @Html.DropDownListFor(m => m.PaymentPercent, new[] {
+                                new SelectListItem {
+                                    Value="30",
+                                    Text="Cọc 30% — trả phần còn lại khi đến"
+                                },
+                                new SelectListItem {
+                                    Value="100",
+                                    Text="Thanh toán đủ 100%"
+                                }
+                            })
+
+                            <p>
+                                Giữ chỗ 10 phút. Lịch được xác nhận sau khi
+                                khách sạn đối soát tiền.
+                                Hủy dịch vụ đã thanh toán cần khách sạn xét
+                                và thống nhất khoản hoàn.
+                            </p>
+                        </div>
+
+                        <div class="wide notice">
+                            <strong id="service-estimate">
+                                Vui lòng chọn dịch vụ.
+                            </strong>
+
+                            <p id="booking-help">
+                                @(selected != null && selected.PayOnline
+                                    ? "Chuyển khoản theo QR ở bước tiếp theo. Báo chuyển khoản chưa phải xác nhận đã nhận tiền."
+                                    : "Yêu cầu tư vấn cần được nhân viên kiểm tra và xác nhận; chưa giữ chỗ hoặc thu tiền.")
+                            </p>
+
+                            <p id="availability-message"
+                               role="status"
+                               aria-live="polite"></p>
+                        </div>
+
+                        <div class="wide">
+                            <label class="agree">
+                                @Html.CheckBoxFor(
+                                    m => m.Agree,
+                                    new { required = "required" })
+
+                                Tôi đã đọc thông tin thanh toán/xác nhận của dịch vụ
+                                và xác nhận thông tin liên hệ là chính xác.
+                            </label>
+                        </div>
+
+                        <div class="wide">
+                            <button type="submit"
+                                    class="button"
+                                    id="booking-submit">
+                                @(selected != null && selected.PayOnline
+                                    ? "Giữ chỗ và thanh toán"
+                                    : "Gửi yêu cầu tư vấn")
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    }
+</main>
+
+<script>
+(function () {
+    const page = document.querySelector('.guest-services');
+    const service = document.getElementById('ServiceId');
+    const slot = document.getElementById('SlotId');
+    const guests = document.getElementById('Guests');
+    const estimate = document.getElementById('service-estimate');
+    const booking = document.getElementById('dining-booking');
+    const date = document.getElementById('VisitDate');
+    const percent = document.getElementById('PaymentPercent');
+    const choice = document.getElementById('payment-choice');
+    const availability = document.getElementById('availability-message');
+
+    let requestNumber = 0;
+
+    if (!service || !slot || !guests || !booking) return;
+
+    const detail = document.getElementById('chosen-detail');
+    const photo = document.getElementById('chosen-photo');
+    const name = document.getElementById('chosen-name');
+    const description = document.getElementById('chosen-description');
+    const price = document.getElementById('chosen-price');
+
+    const cards = Array.from(page.querySelectorAll('.service'));
+    const links = Array.from(page.querySelectorAll('.select-service'));
+    const options = Array.from(slot.options)
+        .filter(o => o.value !== '')
+        .map(o => o.cloneNode(true));
+
+    function currentCard() {
+        return cards.find(c => c.dataset.service === service.value);
+    }
+
+    function updateEstimate() {
+        const card = currentCard();
+
+        choice.style.display =
+            card && card.dataset.payOnline === '1' ? '' : 'none';
+
+        document.getElementById('booking-submit').textContent =
+            card && card.dataset.payOnline === '1'
+                ? 'Giữ chỗ và thanh toán'
+                : 'Gửi yêu cầu tư vấn';
+
+        document.getElementById('booking-help').textContent =
+            card && card.dataset.payOnline === '1'
+                ? 'Chuyển khoản theo QR ở bước tiếp theo. Báo chuyển khoản chưa phải xác nhận đã nhận tiền.'
+                : 'Yêu cầu tư vấn cần nhân viên kiểm tra và xác nhận; chưa giữ chỗ hoặc thu tiền.';
+
+        if (!card) {
+            estimate.textContent = 'Vui lòng chọn dịch vụ.';
+            return;
+        }
+
+        if (card.dataset.mode === 'PER_PERSON') {
+            const count = Number(guests.value);
+
+            if (!Number.isInteger(count) || count < 1 || count > 20) {
+                estimate.textContent =
+                    'Vui lòng nhập số người từ 1 đến 20.';
+                return;
+            }
+
+            estimate.textContent = 'Tổng tiền: '
+                + new Intl.NumberFormat('vi-VN').format(
+                    Number(card.dataset.price) * count
+                )
+                + ' đ cho ' + count + ' người.';
+
+            if (card.dataset.payOnline === '1') {
+                estimate.textContent += ' Thanh toán bước tiếp theo: '
+                    + new Intl.NumberFormat('vi-VN').format(
+                        Math.ceil(
+                            Number(card.dataset.price)
+                            * count
+                            * Number(percent.value)
+                            / 100
+                        )
+                    )
+                    + ' đ.';
+            }
+        } else if (card.dataset.mode === 'A_LA_CARTE') {
+            estimate.textContent =
+                'Tiền ăn tính theo món gọi thực tế; chưa có tổng tiền cố định.';
+        } else {
+            estimate.textContent =
+                'Nhân viên sẽ liên hệ báo giá. Giá được thống nhất trước khi xác nhận yêu cầu.';
+        }
+    }
+
+    function updateSlots(keep) {
+        const previous = keep ? slot.value : '';
+
+        slot.innerHTML = '';
+        slot.add(new Option('-- Chọn khung giờ --', ''));
+
+        options.forEach(o => {
+            if (o.dataset.service === service.value)
+                slot.add(o.cloneNode(true));
+        });
+
+        slot.value = previous;
+        if (!slot.value) slot.value = '';
+
+        updateEstimate();
+        loadAvailability();
+    }
+
+    async function loadAvailability() {
+        const sequence = ++requestNumber;
+        const card = currentCard();
+
+        availability.textContent = '';
+
+        if (!card || card.dataset.payOnline !== '1' || !date.value)
+            return;
+
+        availability.textContent = 'Đang kiểm tra chỗ...';
+
+        const oldSelection = slot.value;
+
+        slot.innerHTML = '';
+        slot.add(new Option('-- Chọn khung giờ --', ''));
+
+        options.filter(o => o.dataset.service === service.value)
+            .forEach(o => slot.add(o.cloneNode(true)));
+
+        slot.value = oldSelection;
+        if (!slot.value) slot.value = '';
+
+        try {
+            const url = new URL(
+                '@Url.Action("Availability", "Dining")',
+                location.origin
+            );
+
+            url.searchParams.set('serviceId', service.value);
+            url.searchParams.set('date', date.value);
+
+            const response = await fetch(
+                url,
+                { credentials: 'same-origin' }
+            );
+
+            if (!response.ok) throw new Error('availability');
+
+            const rows = await response.json();
+
+            if (sequence !== requestNumber) return;
+
+            const previous = slot.value;
+            const count = Number(guests.value);
+
+            slot.innerHTML = '';
+            slot.add(new Option('-- Chọn khung giờ --', ''));
+
+            rows.forEach(row => {
+                const remaining = Math.max(0, row.Remaining);
+                const option = new Option(
+                    row.Time + ' — còn ' + remaining + ' chỗ',
+                    row.Id
+                );
+
+                option.disabled = remaining < count;
+                slot.add(option);
+            });
+
+            slot.value = previous;
+
+            if (!slot.value || slot.selectedOptions[0].disabled)
+                slot.value = '';
+
+            availability.textContent =
+                'Số chỗ có thể thay đổi; hệ thống kiểm tra lại khi bạn gửi đặt lịch.';
+        } catch (_) {
+            if (sequence === requestNumber) {
+                availability.textContent =
+                    'Chưa tải được số chỗ. Hệ thống vẫn kiểm tra khi bạn gửi đặt lịch.';
+            }
+        }
+    }
+
+    function markCards() {
+        const opened = booking.style.display !== 'none';
+
+        cards.forEach(c => c.classList.toggle(
+            'is-selected',
+            opened && c.dataset.service === service.value
+        ));
+
+        links.forEach(link => {
+            const active =
+                opened && link.dataset.service === service.value;
+
+            link.textContent = active ? 'Đang chọn' : 'Chọn dịch vụ';
+            link.setAttribute(
+                'aria-expanded',
+                active ? 'true' : 'false'
+            );
+        });
+    }
+
+    function showService(open) {
+        const card = currentCard();
+
+        if (!card) {
+            detail.style.display = 'none';
+            markCards();
+            return;
+        }
+
+        name.textContent =
+            card.querySelector('.service-name').textContent.trim();
+
+        description.textContent =
+            card.querySelector('.service-description').textContent.trim();
+
+        price.textContent =
+            card.querySelector('.service-price').textContent.trim();
+
+        const image = card.querySelector('.picture img');
+        photo.alt = name.textContent;
+
+        if (image && image.getAttribute('src')) {
+            photo.hidden = false;
+            photo.src = image.getAttribute('src');
+        } else {
+            photo.hidden = true;
+            photo.removeAttribute('src');
+        }
+
+        detail.style.display = 'grid';
+
+        if (open) {
+            booking.style.display = 'block';
+            booking.setAttribute('aria-hidden', 'false');
+            booking.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        markCards();
+    }
+
+    function updateAddress() {
+        const url = new URL(window.location.href);
+
+        url.searchParams.set('group', page.dataset.group);
+        url.searchParams.delete('serviceCode');
+
+        if (currentCard()) {
+            url.searchParams.set('serviceId', service.value);
+            url.searchParams.set('open', '1');
+        } else {
+            url.searchParams.delete('serviceId');
+            url.searchParams.delete('open');
+        }
+
+        url.hash = 'dining-booking';
+
+        window.history.replaceState(
+            null,
+            '',
+            url.pathname + url.search + url.hash
+        );
+    }
+
+    links.forEach(link => link.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        service.value = link.dataset.service;
+        updateSlots(false);
+        showService(true);
+        updateAddress();
+    }));
+
+    service.addEventListener('change', function () {
+        updateSlots(false);
+        showService(false);
+        updateAddress();
+    });
+
+    let availabilityTimer;
+
+    guests.addEventListener('input', function () {
+        updateEstimate();
+        clearTimeout(availabilityTimer);
+        availabilityTimer = setTimeout(loadAvailability, 300);
+    });
+
+    date.addEventListener('change', loadAvailability);
+    percent.addEventListener('change', updateEstimate);
+
+    updateSlots(true);
+    showService(false);
+})();
+</script>

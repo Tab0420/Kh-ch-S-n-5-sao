@@ -774,3 +774,46 @@ const thumbList = document.getElementById('modal_thumb_list');
         syncCheckboxes();
     });
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".specific-room-select").forEach(function (select) {
+                const card = select.closest(".card");
+                if (!card) return;
+
+                const heading = card.querySelector("h4");
+                if (!heading) return;
+
+                const roomType = heading.textContent.trim().replace(/^Phòng\s+/i, "");
+
+                const caption = document.createElement("p");
+                caption.className = "text-muted small mb-2";
+                caption.textContent = "Loại phòng: " + roomType;
+
+                heading.insertAdjacentElement("afterend", caption);
+                heading.classList.add(
+                    "room-card-name-" + select.getAttribute("data-typeid")
+                );
+
+                function updateRoomName() {
+                    const option = select.options[select.selectedIndex];
+                    if (!option) return;
+
+                    const title = "Phòng " + option.value;
+                    heading.textContent = title;
+
+                    const detailButton = card.querySelector(".btn-view-detail");
+                    if (detailButton) {
+                        detailButton.setAttribute("data-title", title);
+                    }
+
+                    const image = card.querySelector(".room-img");
+                    if (image) {
+                        image.alt = title;
+                    }
+                }
+
+                updateRoomName();
+                select.addEventListener("change", updateRoomName);
+            });
+        });
+    </script>

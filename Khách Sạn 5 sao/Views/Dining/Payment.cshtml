@@ -1,0 +1,452 @@
+﻿@model Khách_Sạn_5_sao.Controllers.DiningController.PaymentRow
+@using System.Globalization
+@using Khách_Sạn_5_sao.Controllers
+
+@{
+    ViewBag.Title = "Thanh toán đặt dịch vụ";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+    var culture = CultureInfo.GetCultureInfo("vi-VN");
+
+    string qr =
+        "https://img.vietqr.io/image/970407-2044444444444-compact2.png?amount="
+        + Model.Required.ToString("0", CultureInfo.InvariantCulture)
+        + "&addInfo=" + Uri.EscapeDataString(Model.Reference)
+        + "&accountName=" + Uri.EscapeDataString("BUI TUAN ANH");
+
+    string paymentText;
+
+    switch (Model.PaymentStatus)
+    {
+        case "REPORTED":
+            paymentText = "Bạn đã báo chuyển khoản — chờ đối soát";
+            break;
+        case "DEPOSIT_PAID":
+            paymentText = "Đã nhận tiền cọc";
+            break;
+        case "PAID":
+            paymentText = "Đã thanh toán đủ";
+            break;
+        case "REVIEW":
+            paymentText = "Cần khách sạn kiểm tra khoản tiền và lịch phục vụ";
+            break;
+        case "REFUND_REVIEW":
+            paymentText = "Đang xét yêu cầu hủy/hoàn tiền";
+            break;
+        case "REFUNDED":
+            paymentText = "Đã hoàn đủ số tiền đã nhận";
+            break;
+        case "PART_REFUND":
+            paymentText = "Đã hoàn một phần";
+            break;
+        default:
+            paymentText = Model.Status == "CANCELLED"
+                ? "Chưa ghi nhận thanh toán"
+                : "Chờ thanh toán";
+            break;
+    }
+}
+
+<style>
+    .hotel-banner .banner {
+        height: 240px;
+    }
+
+    .hotel-banner .banner-content {
+        top: 50%;
+    }
+
+    .service-payment {
+        max-width: 1040px;
+        margin: auto;
+        color: #303344;
+    }
+
+        .service-payment h1, .service-payment h2, .service-payment h3 {
+            color: #5c3c92;
+        }
+
+        .service-payment h1 {
+            font-size: 28px;
+        }
+
+        .service-payment h2 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .service-payment p {
+            overflow-wrap: anywhere;
+        }
+
+        .service-payment .payment-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+        }
+
+        .service-payment .panel {
+            border: 1px solid #e6e1ed;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            margin: 20px 0;
+        }
+
+        .service-payment .panel-title {
+            background: #5c3c92;
+            padding: 16px 22px;
+            color: #fff;
+        }
+
+            .service-payment .panel-title h2 {
+                color: inherit;
+            }
+
+        .service-payment .panel-body {
+            padding: 24px;
+        }
+
+        .service-payment .photo {
+            width: 100%;
+            height: 230px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+
+        .service-payment .notice {
+            padding: 16px;
+            border-radius: 8px;
+            background: #f4effb;
+            margin: 16px 0;
+        }
+
+        .service-payment .money {
+            font-size: 21px;
+            color: #dc3155;
+            font-weight: 700;
+        }
+
+        .service-payment .button {
+            display: inline-block;
+            background: #5c3c92;
+            color: #fff;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 6px;
+            text-decoration: none;
+            font: inherit;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+
+        .service-payment .danger {
+            background: #bc3456;
+        }
+
+        .service-payment textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d8d3e3;
+            border-radius: 6px;
+        }
+
+        .service-payment .qr {
+            display: block;
+            width: 250px;
+            max-width: 100%;
+            height: auto;
+            margin: auto;
+        }
+
+        .service-payment .summary p {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .service-payment .summary strong {
+            text-align: right;
+        }
+
+    @@media(max-width:720px) {
+        .service-payment .payment-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .service-payment .panel-body {
+            padding: 18px;
+        }
+    }
+</style>
+
+<main class="service-payment" id="service-payment">
+    <h1>Lịch dịch vụ của bạn</h1>
+
+    @if (TempData["DiningMessage"] != null)
+    {
+        <div class="notice" role="status">@TempData["DiningMessage"]</div>
+    }
+
+    <div class="payment-grid">
+        <section class="panel">
+            <div class="panel-title">
+                <h2>@Model.ServiceName</h2>
+            </div>
+            <div class="panel-body">
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img class="photo" src="@Model.ImageUrl"
+                         alt="@Model.ServiceName"
+                         onerror="this.hidden=true;" />
+                }
+
+                <p><strong>Mã đặt dịch vụ:</strong> @Model.Code</p>
+                <p>
+                    <strong>Lịch sử dụng:</strong>
+                    @Model.VisitAt.ToString("dd/MM/yyyy HH:mm") — giờ Việt Nam
+                </p>
+                <p><strong>Số người:</strong> @Model.Guests</p>
+                <p><strong>Người đặt:</strong> @Model.FullName</p>
+                <p><strong>Điện thoại:</strong> @Model.Phone</p>
+                <p>
+                    <strong>Trạng thái lịch:</strong>
+                    @DiningController.StatusText(Model.Status)
+                </p>
+                <p><strong>Thanh toán:</strong> @paymentText</p>
+
+                @if (Model.Status == "CONFIRMED")
+                {
+                    <div class="notice">
+                        Lịch đã được xác nhận. Bạn vui lòng đến đúng giờ
+                        và cung cấp mã đặt dịch vụ.
+                    </div>
+                }
+                else if (Model.CanTransfer)
+                {
+                    <div class="notice" id="hold-notice"
+                         data-until="@Model.HoldUntilUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+                        Giữ chỗ đến
+                        @Model.HoldUntilUtc.AddHours(7).ToString("HH:mm:ss dd/MM/yyyy")
+                        (giờ Việt Nam).
+                        <strong id="hold-countdown"></strong>
+                        Chuyển đúng số tiền và nội dung; lịch chỉ được
+                        xác nhận sau khi đối soát ngân hàng.
+                    </div>
+                }
+                else if (Model.Status == "PENDING")
+                {
+                    <div class="notice">
+                        Lịch chưa được xác nhận. Nếu thời gian giữ chỗ đã hết,
+                        không chuyển thêm tiền. Nếu đã chuyển, khách sạn sẽ đối soát
+                        và kiểm tra lại chỗ trước khi xác nhận hoặc xử lý khoản hoàn.
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.StaffNote))
+                {
+                    <div class="notice">
+                        <strong>Phản hồi khách sạn:</strong> @Model.StaffNote
+                    </div>
+                }
+
+                <a class="button"
+                   href="@Url.Action("Payment",new {code=Model.Code})#service-payment">
+                    Cập nhật trạng thái
+                </a>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-title">
+                <h2>Chi phí &amp; thanh toán</h2>
+            </div>
+            <div class="panel-body">
+                <div class="summary">
+                    <p>
+                        Tổng tiền
+                        <strong>@Model.Total.ToString("N0", culture) đ</strong>
+                    </p>
+                    <p>
+                        Lựa chọn
+                        <strong>@(Model.Percent == 30 ? "Cọc 30%" : "Trả đủ 100%")</strong>
+                    </p>
+                    <p>
+                        Thanh toán ban đầu
+                        <strong>@Model.Required.ToString("N0", culture) đ</strong>
+                    </p>
+                    <p>
+                        Đã nhận qua đối soát
+                        <strong>@Model.Paid.ToString("N0", culture) đ</strong>
+                    </p>
+                    <p>
+                        Đã hoàn
+                        <strong>@Model.Refunded.ToString("N0", culture) đ</strong>
+                    </p>
+
+                    @if (Model.Status != "CANCELLED")
+                    {
+                        <p>
+                            Còn lại
+                            <strong>@Math.Max(0, Model.Total - Model.Paid).ToString("N0", culture) đ</strong>
+                        </p>
+                    }
+                </div>
+
+                @if (Model.Percent == 30 && Model.Status != "CANCELLED")
+                {
+                    <p>Phần còn lại thanh toán khi đến sử dụng dịch vụ.</p>
+                }
+
+                @if (Model.CanTransfer)
+                {
+                    <div id="bank-payment">
+                        <h3>Chuyển khoản ngân hàng</h3>
+                        <p class="money">
+                            @Model.Required.ToString("N0", culture) đ
+                        </p>
+
+                        <img class="qr" src="@qr"
+                             alt="QR chuyển khoản Techcombank"
+                             onerror="this.hidden=true;" />
+
+                        <p><strong>Ngân hàng:</strong> Techcombank</p>
+                        <p><strong>Số tài khoản:</strong> 2044444444444</p>
+                        <p><strong>Chủ tài khoản:</strong> Bùi Tuấn Anh</p>
+                        <p><strong>Nội dung:</strong> @Model.Reference</p>
+
+                        <p>
+                            Kiểm tra người nhận trên ứng dụng ngân hàng trước khi chuyển.
+                            Nếu QR không tải, nhập thủ công thông tin trên.
+                        </p>
+
+                        @if (Model.PaymentStatus == "WAITING")
+                        {
+                            <form action="@Url.Action("ReportTransfer")" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="code" value="@Model.Code" />
+                                <button class="button" type="submit">
+                                    Tôi đã chuyển khoản
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <p>
+                                Đã gửi thông báo đối soát.
+                                Nếu đã chuyển đúng số tiền, bạn không cần chuyển lại.
+                            </p>
+                        }
+
+                        <p>
+                            Nút báo chuyển khoản không xác nhận đã nhận tiền
+                            và không gia hạn giữ chỗ.
+                        </p>
+                    </div>
+                }
+
+                <p>MoMo và thẻ chưa khả dụng; đang chờ kết nối cổng thanh toán.</p>
+            </div>
+        </section>
+    </div>
+
+    <section class="panel">
+        <div class="panel-title">
+            <h2>Hủy lịch dịch vụ</h2>
+        </div>
+        <div class="panel-body">
+            @if (Model.CancelRequestedAtUtc.HasValue)
+            {
+                <p>
+                    @(Model.Status == "CANCELLED"
+                        ? "Lịch đã hủy."
+                        : "Đã gửi yêu cầu hủy, đang chờ khách sạn xét.")
+                    Khoản hoàn chỉ được ghi nhận sau khi khách sạn
+                    thực hiện chuyển tiền.
+                </p>
+            }
+            else if (Model.CanCancel)
+            {
+                <p>
+                    Lịch chưa thanh toán có thể hủy. Với lịch đã thanh toán,
+                    khách sạn sẽ xem xét điều kiện hủy và thống nhất số tiền hoàn;
+                    hệ thống chưa tự khấu trừ cọc.
+                </p>
+
+                <form action="@Url.Action("Cancel")" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="code" value="@Model.Code" />
+
+                    <label for="reason">Lý do hủy</label>
+                    <textarea id="reason" name="reason"
+                              minlength="3" maxlength="500" required></textarea>
+
+                    <p>
+                        <label>
+                            <input type="checkbox" name="confirm"
+                                   value="true" required />
+                            Tôi xác nhận gửi yêu cầu hủy.
+                        </label>
+                    </p>
+
+                    <button class="button danger" type="submit">
+                        @(Model.Paid > 0
+                            ? "Gửi yêu cầu hủy và hoàn tiền"
+                            : "Hủy lịch này")
+                    </button>
+                </form>
+            }
+            else
+            {
+                <p>
+                    Lịch không còn được hủy trực tuyến.
+                    Vui lòng liên hệ khách sạn nếu cần hỗ trợ.
+                </p>
+            }
+        </div>
+    </section>
+
+    <a class="button"
+       href="@Url.Action("Index",new {group=Model.GroupCode})#service-cards">
+        Chọn lịch khác
+    </a>
+    <a class="button" href="@Url.Action("Lookup")">
+        Tra cứu dịch vụ
+    </a>
+</main>
+
+<script>
+(function () {
+    const notice = document.getElementById('hold-notice');
+    if (!notice) return;
+
+    const until = Date.parse(notice.dataset.until);
+    const countdown = document.getElementById('hold-countdown');
+
+    function tick() {
+        const seconds = Math.max(
+            0, Math.ceil((until - Date.now()) / 1000)
+        );
+
+        countdown.textContent =
+            ' Còn ' + Math.floor(seconds / 60) +
+            ' phút ' + seconds % 60 + ' giây. ';
+
+        if (seconds === 0) {
+            notice.textContent =
+                'Đã hết thời gian giữ chỗ. Không chuyển thêm tiền. Nếu đã chuyển, hãy cập nhật trạng thái hoặc liên hệ khách sạn để đối soát.';
+
+            const bank = document.getElementById('bank-payment');
+            if (bank) bank.hidden = true;
+
+            clearInterval(timer);
+        }
+    }
+
+    const timer = setInterval(tick, 1000);
+    tick();
+})();
+</script>

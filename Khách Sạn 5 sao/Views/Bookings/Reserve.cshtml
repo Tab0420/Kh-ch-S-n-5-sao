@@ -1,0 +1,1146 @@
+﻿@model Khách_Sạn_5_sao.Models.Room
+@using System.Collections.Generic
+@using System.Linq
+@using Khách_Sạn_5_sao.Controllers
+
+@{
+    ViewBag.Title = "Đặt Phòng Khách Sạn";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+
+    DateTime start = ViewBag.CheckIn;
+    DateTime end = ViewBag.CheckOut;
+    DateTime today = ViewBag.Today;
+
+    var names = (IDictionary<string, string>)ViewBag.RoomNames;
+    var photos = (IDictionary<string, string>)ViewBag.RoomPhotos;
+    var rooms = (List<Khách_Sạn_5_sao.Models.Room>)ViewBag.RoomChoices;
+    var extras = (List<BookingsController.ExtraOption>)ViewBag.Services;
+
+    var selectedExtras = ViewBag.SelectedServices as List<string>
+        ?? new List<string>();
+
+    string name = names[Model.room_id];
+
+    string fallback =
+        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80";
+
+    string photo = string.IsNullOrWhiteSpace(photos[Model.room_id])
+        ? fallback
+        : photos[Model.room_id];
+
+    decimal rate = Model.Room_Types.gia_tien ?? 0;
+    int count = ViewBag.AvailableCount;
+
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      rel="stylesheet" />
+
+<style>
+    body {
+        background: #f8f9fa;
+    }
+
+    .hotel-header a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .bg-purple,
+    .btn-purple {
+        background: #5c3c92;
+        color: white;
+    }
+
+    .text-purple {
+        color: #5c3c92;
+    }
+
+    .btn-purple {
+        font-weight: 700;
+        border: 0;
+    }
+
+        .btn-purple:hover {
+            background: #4a2f77;
+            color: white;
+        }
+
+    .btn-outline-purple {
+        border: 1px solid #5c3c92;
+        color: #5c3c92;
+    }
+
+    .room-img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .amenity-badge {
+        background: #f0ebf8;
+        color: #5c3c92;
+        font-size: .85rem;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+    .service-card {
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+    }
+
+        .service-card:hover {
+            border-color: #5c3c92;
+            background: #fcfaff;
+        }
+</style>
+
+<div class="container my-4">
+
+    @using (Html.BeginForm(
+        "Reserve", "Bookings", FormMethod.Post,
+        new { id = "bookingForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(
+            false, "", new { @class = "text-danger", role = "alert" }
+        )
+
+        <div class="card shadow-sm border-0 mb-4 rounded-3 overflow-hidden">
+            <div class="card-header bg-purple p-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    THÔNG TIN ĐẶT PHÒNG MOONLIGHT HOTEL
+                </h5>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row g-3">
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small"
+                               for="ngay_checkin">
+                            Check-in (Nhận phòng)
+                        </label>
+
+                        @Html.TextBox(
+                            "ngay_checkin",
+                            start.ToString("yyyy-MM-dd"),
+                            new
+                            {
+                                type = "date",
+                                min = today.ToString("yyyy-MM-dd"),
+                                required = "required",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small"
+                               for="ngay_checkout">
+                            Check-out (Trả phòng)
+                        </label>
+
+                        @Html.TextBox(
+                            "ngay_checkout",
+                            end.ToString("yyyy-MM-dd"),
+                            new
+                            {
+                                type = "date",
+                                min = start.AddDays(1).ToString("yyyy-MM-dd"),
+                                required = "required",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small" for="ho_ten">
+                            Họ và tên (*)
+                        </label>
+
+                        @Html.TextBox(
+                            "ho_ten", null,
+                            new
+                            {
+                                required = "required",
+                                maxlength = "255",
+                                autocomplete = "name",
+                                placeholder = "Nhập tên khách...",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small"
+                               for="so_dien_thoai">
+                            Số điện thoại (*)
+                        </label>
+
+                        @Html.TextBox(
+                            "so_dien_thoai", null,
+                            new
+                            {
+                                type = "tel",
+                                required = "required",
+                                maxlength = "20",
+                                autocomplete = "tel",
+                                placeholder = "VD: 0912345678",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small" for="email">
+                            Email (*)
+                        </label>
+
+                        @Html.TextBox(
+                            "email", null,
+                            new
+                            {
+                                type = "email",
+                                required = "required",
+                                maxlength = "255",
+                                autocomplete = "email",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small"
+                               for="so_nguoi_lon">
+                            Người lớn
+                        </label>
+
+                        @Html.TextBox(
+                            "so_nguoi_lon", 1,
+                            new
+                            {
+                                type = "number",
+                                min = "1",
+                                required = "required",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small" for="so_tre_em">
+                            Trẻ em
+                        </label>
+
+                        @Html.TextBox(
+                            "so_tre_em", 0,
+                            new
+                            {
+                                type = "number",
+                                min = "0",
+                                required = "required",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 align-items-stretch">
+
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+                    <div class="card-body p-4">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-5">
+                                <img id="room-photo"
+                                     class="room-img shadow-sm mb-3"
+                                     src="@photo"
+                                     alt="@name"
+                                     data-fallback="@fallback"
+                                     onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src=this.dataset.fallback;}else{this.hidden=true;}" />
+
+                                <div class="bg-light p-3 rounded-3 border small mb-2">
+                                    <div class="mb-2">
+                                        <strong>Diện tích:</strong>
+                                        @Model.Room_Types.dien_tich
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Giường:</strong>
+                                        @Model.Room_Types.giuong
+                                    </div>
+                                    <div>
+                                        <strong>Hướng view:</strong>
+                                        @Model.Room_Types.view_phong
+                                    </div>
+                                </div>
+
+                                <button type="button"
+                                        class="btn btn-outline-purple btn-sm w-100"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#roomDetailModal">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Xem thêm thông tin phòng
+                                </button>
+                            </div>
+
+                            <div class="col-md-7">
+                                <h4 id="room-name"
+                                    class="fw-bold text-purple mb-1">
+                                    Phòng @name
+                                </h4>
+
+                                <p class="text-muted small mb-2">
+                                    Loại phòng: @Model.Room_Types.ten_loai
+                                </p>
+
+                                @if (Model.Room_Types.co_an_sang == true)
+                                {
+                                    <p class="text-success small fw-bold">
+                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                        Bao gồm bữa sáng miễn phí
+                                    </p>
+                                }
+
+                                <div class="bg-light p-3 rounded-3 border mb-3">
+                                    <span id="room-rate"
+                                          class="fs-4 fw-bold text-danger">
+                                        @rate.ToString("N0", culture)đ / đêm
+                                    </span>
+
+                                    <span class="text-muted small">
+                                        (Tối đa
+                                        <span id="room-capacity">
+                                            @(Model.Room_Types.suc_chua ?? 2)
+                                        </span>
+                                        khách/phòng)
+                                    </span>
+                                </div>
+
+                                <label class="form-label fw-bold small"
+                                       for="roomChoice">
+                                    <i class="bi bi-house-door-fill me-1"></i>
+                                    Chọn phòng cụ thể thuộc loại này:
+                                </label>
+
+                                <select id="roomChoice"
+                                        name="room_id"
+                                        class="form-select form-select-sm mb-3"
+                                        required>
+                                    <option value="">Chọn phòng còn trống</option>
+
+                                    @foreach (var choice in rooms)
+                                    {
+                                        <option value="@choice.room_id"
+                                                data-name="@names[choice.room_id]"
+                                                data-image="@photos[choice.room_id]"
+                                                @(choice.room_id == Model.room_id ? "selected" : "")>
+                                            @names[choice.room_id]
+                                        </option>
+                                    }
+                                </select>
+
+                                <strong class="small d-block mb-2">
+                                    Tiện nghi nổi bật:
+                                </strong>
+
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="amenity-badge">Wifi miễn phí</span>
+                                    <span class="amenity-badge">Điều hòa</span>
+                                    <span class="amenity-badge">Phòng tắm riêng</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row align-items-center mt-3 pt-3 border-top g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold" for="quantity">
+                                    Chọn số lượng phòng:
+                                </label>
+
+                                @Html.DropDownList(
+                                    "quantity",
+                                    new SelectList(
+                                        Enumerable.Range(1, Math.Max(1, count))
+                                    ),
+                                    new { @class = "form-select fw-bold" }
+                                )
+                            </div>
+
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    Khách sạn hiện còn
+                                    <strong id="available-count" class="text-purple">
+                                        @count phòng trống
+                                    </strong>
+                                    cho loại phòng này.
+                                </small>
+                            </div>
+                        </div>
+
+                        <p id="availability-status"
+                           class="small text-danger mt-2 mb-0"
+                           role="status"></p>
+
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+                    <div class="card-header bg-purple p-3">
+                        <h5 class="mb-0 fw-bold">
+                            DỊCH VỤ ĐI KÈM (TÙY CHỌN)
+                        </h5>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            @foreach (var extra in extras)
+                            {
+                                <div class="col-md-6">
+                                    <label class="service-card p-3 rounded-3 d-flex align-items-center justify-content-between gap-2 h-100"
+                                           for="srv_@extra.Id">
+                                        <span class="small fw-bold">
+                                            <input id="srv_@extra.Id"
+                                                   name="services"
+                                                   value="@extra.Id"
+                                                   type="checkbox"
+                                                   class="form-check-input service-checkbox me-2"
+                                                   data-name="@extra.Name"
+                                                   data-price="@extra.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                   @(selectedExtras.Contains(extra.Id) ? "checked" : "") />
+                                            @extra.Name
+                                        </span>
+
+                                        <span class="badge bg-purple">
+                                            @extra.Price.ToString("N0", culture) đ
+                                        </span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <label class="form-label fw-bold" for="ghi_chu">
+                            Ghi chú yêu cầu
+                        </label>
+
+                        @Html.TextArea(
+                            "ghi_chu", null,
+                            new
+                            {
+                                rows = "2",
+                                maxlength = "500",
+                                @class = "form-control"
+                            }
+                        )
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 rounded-3 h-100">
+
+                    <div class="card-header bg-light p-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-receipt me-2"></i>
+                            Tóm Tắt Đặt Phòng
+                        </h5>
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column">
+
+                        <div class="bg-light p-3 rounded-3 border d-flex justify-content-between mb-3">
+                            <span>Thời gian lưu trú:</span>
+                            <span id="disp_nights" class="badge bg-purple">
+                                1 đêm
+                            </span>
+                        </div>
+
+                        <strong class="small mb-2">Chi tiết lựa chọn:</strong>
+
+                        <div id="selected_rooms_list" class="small mb-3"></div>
+                        <div id="selected_services_list"
+                             class="small text-purple mb-3"></div>
+
+                        <div class="border-top pt-3 mb-4">
+                            <label class="fw-bold small mb-2" for="coupon_code">
+                                Mã Giảm Giá / Ưu Đãi
+                            </label>
+
+                            <div class="input-group input-group-sm">
+                                @Html.TextBox(
+                                    "coupon_code",
+                                    ViewBag.CouponCode as string,
+                                    new
+                                    {
+                                        @class = "form-control",
+                                        maxlength = "32",
+                                        placeholder = "VIP15, MOI10, LE10"
+                                    }
+                                )
+
+                                <button id="btn_apply_coupon"
+                                        type="button"
+                                        class="btn btn-purple">
+                                    Áp dụng
+                                </button>
+                            </div>
+
+                            <div id="coupon_msg"
+                                 class="small mt-2"
+                                 role="status"></div>
+
+                            <small class="text-muted">
+                                VIP15: 12 đơn/12 tháng.
+                                MOI10: khách mới.
+                                LE10: lưu trú có ngày lễ.
+                                Mỗi đơn dùng 1 mã.
+                            </small>
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="bg-light p-3 rounded-3 border mb-3">
+
+                                <div class="d-flex justify-content-between small mb-2">
+                                    <span>Tạm tính:</span>
+                                    <strong id="disp_subtotal"></strong>
+                                </div>
+
+                                <div id="row_discount"
+                                     class="d-flex justify-content-between small text-success mb-2 d-none">
+                                    <span>Ưu đãi giảm giá:</span>
+                                    <strong id="disp_discount"></strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center border-top pt-2 gap-2">
+                                    <strong>Tổng thanh toán:</strong>
+                                    <strong id="disp_total"
+                                            class="fs-4 text-danger"></strong>
+                                </div>
+
+                            </div>
+
+                            <button id="confirm-booking"
+                                    type="submit"
+                                    class="btn btn-purple w-100 py-3">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                XÁC NHẬN ĐẶT PHÒNG
+                            </button>
+
+                            <a class="btn btn-outline-secondary w-100 mt-2"
+                               href="@Url.Action("Index", new {
+                               ngay_checkin = start.ToString("yyyy-MM-dd"),
+                               ngay_checkout = end.ToString("yyyy-MM-dd"),
+                               type_id = Model.type_id
+                           })">
+                                Chọn loại phòng khác
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+<div class="modal fade"
+     id="roomDetailModal"
+     tabindex="-1"
+     aria-labelledby="modalTitle"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 overflow-hidden">
+
+            <div class="modal-header bg-purple">
+                <h5 id="modalTitle" class="modal-title">
+                    Thông tin chi tiết phòng
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Đóng"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <img id="modal-photo"
+                             src="@photo"
+                             alt="@name"
+                             class="room-img"
+                             data-fallback="@fallback"
+                             onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src=this.dataset.fallback;}else{this.hidden=true;}" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <h4 id="modal-room-name" class="text-purple">
+                            @name
+                        </h4>
+
+                        <p id="detail-type">
+                            @Model.Room_Types.ten_loai
+                        </p>
+
+                        <p>
+                            Diện tích:
+                            <span id="detail-area">
+                                @Model.Room_Types.dien_tich
+                            </span>
+                        </p>
+
+                        <p>
+                            Giường:
+                            <span id="detail-bed">
+                                @Model.Room_Types.giuong
+                            </span>
+                        </p>
+
+                        <p>
+                            Hướng view:
+                            <span id="detail-view">
+                                @Model.Room_Types.view_phong
+                            </span>
+                        </p>
+
+                        <p>
+                            Sức chứa:
+                            <span id="detail-capacity">
+                                @(Model.Room_Types.suc_chua ?? 2)
+                            </span>
+                            khách/phòng
+                        </p>
+                    </div>
+
+                </div>
+
+                <div id="room-detail-content"
+                     class="border-top mt-4 pt-3"
+                     aria-live="polite">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-purple"
+                        data-bs-dismiss="modal">
+                    Đóng
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+(function () {
+    const form = document.getElementById('bookingForm');
+
+    const start = document.getElementById('ngay_checkin');
+    const end = document.getElementById('ngay_checkout');
+
+    const choice = document.getElementById('roomChoice');
+    const qty = document.getElementById('quantity');
+
+    const phone = document.getElementById('so_dien_thoai');
+    const coupon = document.getElementById('coupon_code');
+
+    const msg = document.getElementById('coupon_msg');
+    const status = document.getElementById('availability-status');
+    const confirm = document.getElementById('confirm-booking');
+
+    const extras = [
+        ...document.querySelectorAll('.service-checkbox')
+    ];
+
+    const money = value => value.toLocaleString('vi-VN') + ' đ';
+    const fallback = '@fallback';
+
+    let rate = @rate.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    let percent = 0;
+    let pending = false;
+    let version = 0;
+    let couponVersion = 0;
+    let applying = false;
+
+    function nights() {
+        return (
+            Date.parse(end.value) - Date.parse(start.value)
+        ) / 86400000;
+    }
+
+    function resetCoupon() {
+        percent = 0;
+        ++couponVersion;
+        applying = false;
+
+        document.getElementById('btn_apply_coupon').disabled = false;
+        msg.textContent = '';
+    }
+
+    function summary() {
+        const option = choice.options[choice.selectedIndex];
+        const quantity = Number(qty.value) || 0;
+
+        const selected = option && option.value
+            ? [
+                option,
+                ...[...choice.options].filter(
+                    o => o.value && o.value !== option.value
+                )
+            ].slice(0, quantity)
+            : [];
+
+        const list = document.getElementById('selected_rooms_list');
+        list.replaceChildren();
+
+        selected.forEach(o => {
+            const line = document.createElement('div');
+            line.className = 'mb-2';
+            line.textContent =
+                o.dataset.name + ' — ' + money(rate) + '/đêm';
+
+            list.appendChild(line);
+        });
+
+        const serviceList = document.getElementById(
+            'selected_services_list'
+        );
+
+        serviceList.replaceChildren();
+
+        let serviceTotal = 0;
+
+        extras.filter(x => x.checked).forEach(x => {
+            serviceTotal += Number(x.dataset.price);
+
+            const line = document.createElement('div');
+            line.className = 'mb-2';
+            line.textContent =
+                '+ ' + x.dataset.name + ' — '
+                + money(Number(x.dataset.price));
+
+            serviceList.appendChild(line);
+        });
+
+        const days = nights();
+
+        const subtotal = days > 0
+            ? days * rate * selected.length + serviceTotal
+            : 0;
+
+        const discount = Math.round(subtotal * percent / 100);
+
+        document.getElementById('disp_nights').textContent =
+            days > 0 ? days + ' đêm' : 'Ngày không hợp lệ';
+
+        document.getElementById('disp_subtotal').textContent =
+            money(subtotal);
+
+        document.getElementById('row_discount')
+            .classList.toggle('d-none', percent === 0);
+
+        document.getElementById('disp_discount').textContent =
+            '−' + money(discount);
+
+        document.getElementById('disp_total').textContent =
+            money(subtotal - discount);
+
+        confirm.disabled =
+            pending
+            || applying
+            || days <= 0
+            || !choice.value
+            || selected.length !== quantity
+            || quantity < 1;
+    }
+
+    function updateRoom() {
+        const option = choice.options[choice.selectedIndex];
+
+        if (option && option.value) {
+            document.getElementById('room-name').textContent =
+                'Phòng ' + option.dataset.name;
+
+            document.getElementById('modal-room-name').textContent =
+                option.dataset.name;
+
+            const image = document.getElementById('room-photo');
+            image.hidden = false;
+            delete image.dataset.failed;
+            image.src = option.dataset.image || fallback;
+            image.alt = option.dataset.name;
+
+            const modalImage = document.getElementById('modal-photo');
+            modalImage.hidden = false;
+            delete modalImage.dataset.failed;
+            modalImage.src = image.src;
+        }
+
+        summary();
+    }
+
+    async function refreshRooms() {
+        const request = ++version;
+        resetCoupon();
+
+        if (!start.value || !end.value || nights() <= 0) {
+            pending = true;
+            status.textContent =
+                'Vui lòng chọn ngày trả phòng sau ngày nhận phòng.';
+
+            summary();
+            return;
+        }
+
+        pending = true;
+        status.textContent = 'Đang kiểm tra phòng trống...';
+        summary();
+
+        const previous = choice.value;
+        const quantity = qty.value;
+
+        try {
+            const query = new URLSearchParams({
+                type_id: '@Model.type_id',
+                ngay_checkin: start.value,
+                ngay_checkout: end.value
+            });
+
+            const response = await fetch(
+                '@Url.Action("Availability", "Bookings")?' + query
+            );
+
+            if (!response.ok) throw new Error();
+
+            const data = await response.json();
+
+            if (request !== version) return;
+            if (!data.success) throw new Error();
+
+            choice.replaceChildren(
+                new Option('Chọn phòng còn trống', '')
+            );
+
+            data.rooms.forEach(r => {
+                const option = new Option(r.name, r.id);
+                option.dataset.name = r.name;
+                option.dataset.image = r.image;
+
+                choice.appendChild(option);
+            });
+
+            choice.value = data.rooms.some(r => r.id === previous)
+                ? previous
+                : '';
+
+            qty.replaceChildren();
+
+            for (let i = 1; i <= Math.max(1, data.rooms.length); i++) {
+                qty.add(new Option(i + ' phòng', i));
+            }
+
+            qty.value = String(
+                Math.min(
+                    Number(quantity) || 1,
+                    Math.max(1, data.rooms.length)
+                )
+            );
+
+            rate = Number(data.rate);
+
+            document.getElementById('room-rate').textContent =
+                money(rate) + '/đêm';
+
+            document.getElementById('room-capacity').textContent =
+                data.capacity;
+
+            document.getElementById('available-count').textContent =
+                data.rooms.length + ' phòng trống';
+
+            status.textContent = !data.rooms.length
+                ? 'Không còn phòng trống cho khoảng ngày này.'
+                : !choice.value
+                    ? 'Phòng trước không còn trống. Vui lòng chọn lại phòng.'
+                    : '';
+
+            pending = false;
+            updateRoom();
+        }
+        catch (_) {
+            if (request === version) {
+                pending = true;
+
+                status.textContent =
+                    'Không kiểm tra được phòng trống. '
+                    + 'Vui lòng tải lại hoặc đổi ngày.';
+
+                summary();
+            }
+        }
+    }
+
+    start.addEventListener('change', function () {
+        if (this.value) {
+            const next = new Date(this.value + 'T00:00:00Z');
+            next.setUTCDate(next.getUTCDate() + 1);
+
+            end.min = next.toISOString().slice(0, 10);
+
+            if (!end.value || end.value <= this.value) {
+                end.value = end.min;
+            }
+        }
+
+        refreshRooms();
+    });
+
+    end.addEventListener('change', refreshRooms);
+    choice.addEventListener('change', updateRoom);
+    qty.addEventListener('change', summary);
+
+    extras.forEach(x => x.addEventListener('change', summary));
+
+    phone.addEventListener('input', function () {
+        resetCoupon();
+        summary();
+    });
+
+    coupon.addEventListener('input', function () {
+        resetCoupon();
+        summary();
+    });
+
+    document.getElementById('btn_apply_coupon')
+        .addEventListener('click', async function () {
+            const request = ++couponVersion;
+
+            percent = 0;
+            applying = true;
+            this.disabled = true;
+
+            msg.textContent = 'Đang kiểm tra mã...';
+            summary();
+
+            try {
+                const data = new FormData(form);
+
+                const response = await fetch(
+                    '@Url.Action("CheckDiscount", "Bookings")',
+                    {
+                        method: 'POST',
+                        body: data
+                    }
+                );
+
+                if (!response.ok) throw new Error();
+
+                const result = await response.json();
+
+                if (request !== couponVersion) return;
+
+                percent = result.success
+                    ? Number(result.discountPercent)
+                    : 0;
+
+                msg.textContent = result.message;
+
+                msg.className = 'small mt-2 '
+                    + (result.success ? 'text-success' : 'text-danger');
+            }
+            catch (_) {
+                if (request === couponVersion) {
+                    percent = 0;
+                    msg.textContent =
+                        'Không kiểm tra được mã. Vui lòng thử lại.';
+                }
+            }
+            finally {
+                if (request === couponVersion) {
+                    applying = false;
+                    this.disabled = false;
+                    summary();
+                }
+            }
+        });
+
+    form.addEventListener('submit', function (event) {
+        if (confirm.disabled) {
+            event.preventDefault();
+            return;
+        }
+
+        confirm.disabled = true;
+        confirm.textContent = 'Đang xác nhận...';
+    });
+
+    updateRoom();
+})();
+</script>
+<script>
+(function () {
+    const modal = document.getElementById('roomDetailModal');
+    const choice = document.getElementById('roomChoice');
+    const content = document.getElementById('room-detail-content');
+
+    if (!modal || !choice || !content) return;
+
+    let version = 0;
+
+    async function loadDetails() {
+        const request = ++version;
+
+        content.replaceChildren();
+
+        const message = document.createElement('p');
+        message.className = 'text-muted small';
+        message.textContent = 'Đang tải thông tin phòng...';
+
+        content.appendChild(message);
+
+        if (!choice.value) {
+            message.textContent = 'Vui lòng chọn một phòng.';
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                '@Url.Action("Get", "RoomDetails")?room_id='
+                + encodeURIComponent(choice.value)
+            );
+
+            if (!response.ok) throw new Error();
+
+            const data = await response.json();
+
+            if (request !== version) return;
+            if (!data.success) throw new Error();
+
+            document.getElementById('modal-room-name').textContent =
+                data.name;
+
+            document.getElementById('detail-type').textContent =
+                data.typeName;
+
+            document.getElementById('detail-area').textContent =
+                data.area || 'Đang cập nhật';
+
+            document.getElementById('detail-bed').textContent =
+                data.bed || 'Đang cập nhật';
+
+            document.getElementById('detail-view').textContent =
+                data.view || 'Đang cập nhật';
+
+            document.getElementById('detail-capacity').textContent =
+                data.capacity;
+
+            content.replaceChildren();
+
+            const description = document.createElement('p');
+            description.className = 'text-secondary mb-4';
+            description.textContent = data.description;
+
+            content.appendChild(description);
+
+            data.sections.forEach(section => {
+                if (!section.items.length) return;
+
+                const block = document.createElement('section');
+                block.className = 'mb-4';
+
+                const heading = document.createElement('h6');
+                heading.className = 'fw-bold text-purple mb-3';
+                heading.textContent = section.title;
+
+                block.appendChild(heading);
+
+                const list = document.createElement('ul');
+
+                list.className =
+                    'row row-cols-1 row-cols-md-2 g-2 '
+                    + 'list-unstyled mb-0';
+
+                section.items.forEach(text => {
+                    const item = document.createElement('li');
+
+                    item.className =
+                        'col d-flex align-items-start small';
+
+                    const icon = document.createElement('i');
+
+                    icon.className =
+                        'bi bi-check2-circle text-success me-2';
+
+                    icon.setAttribute('aria-hidden', 'true');
+
+                    const label = document.createElement('span');
+                    label.textContent = text;
+
+                    item.append(icon, label);
+                    list.appendChild(item);
+                });
+
+                block.appendChild(list);
+                content.appendChild(block);
+            });
+
+            if (data.isDemo) {
+                const note = document.createElement('p');
+
+                note.className =
+                    'small text-muted border-top pt-3 mb-0';
+
+                note.textContent =
+                    'Thông tin tiện nghi minh họa, '
+                    + 'chờ khách sạn xác nhận.';
+
+                content.appendChild(note);
+            }
+        }
+        catch (_) {
+            if (request === version) {
+                message.textContent =
+                    'Chưa tải được thông tin chi tiết. '
+                    + 'Vui lòng đóng và mở lại để thử lại.';
+            }
+        }
+    }
+
+    modal.addEventListener('show.bs.modal', loadDetails);
+
+    modal.addEventListener('hidden.bs.modal', function () {
+        ++version;
+    });
+
+    choice.addEventListener('change', function () {
+        ++version;
+        content.replaceChildren();
+
+        if (modal.classList.contains('show')) {
+            loadDetails();
+        }
+    });
+})();
+</script>
