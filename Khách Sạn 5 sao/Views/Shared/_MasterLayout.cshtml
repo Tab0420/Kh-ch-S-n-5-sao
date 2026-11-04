@@ -1,20 +1,56 @@
 ﻿@using System.Collections.Generic
 @using Khách_Sạn_5_sao.Controllers
 @{
-    var residentBenefits =
-        ViewBag.ResidentBenefits as IEnumerable<ResidentServicesController.ServiceRow>;
+    var residentBenefits = ViewBag.ResidentBenefits as IEnumerable<ResidentServicesController.ServiceRow>;
     var roomOrder = ViewData.Model as MyBookingsController.LookupPage;
+
+    var mainCssVersion = System.IO.File.GetLastWriteTimeUtc(
+        Server.MapPath("~/Content/Mystyle.css")).Ticks;
+
+    var bannerCssVersion = System.IO.File.GetLastWriteTimeUtc(
+        Server.MapPath("~/Content/stylepro.css")).Ticks;
 }
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>@ViewBag.Title-MoonLight Hotel</title>
-    <link rel="stylesheet" href="~/Content/Mystyle.css" />
-    <link rel="stylesheet" href="~/Content/stylepro.css" />
+
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/Mystyle.css")?v=@mainCssVersion" />
+
+    <link rel="stylesheet"
+          href="@Url.Content("~/Content/stylepro.css")?v=@bannerCssVersion" />
 
     <style>
+        /* Chữ nằm bên trong khung ảnh banner */
+        .hotel-banner .banner > .banner-content {
+            inset: 0;
+            transform: none;
+            width: 100%;
+            max-width: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+            .hotel-banner .banner > .banner-content h1 {
+                font-size: clamp(30px, 5vw, 76px);
+                line-height: 1.15;
+                margin: 0 0 15px;
+            }
+
+            .hotel-banner .banner > .banner-content p {
+                font-size: clamp(14px, 1.6vw, 26px);
+                line-height: 1.5;
+                letter-spacing: clamp(1px, 0.25vw, 5px);
+                margin: 0;
+            }
+
         .resident-callout {
             max-width: 1040px;
             margin: 24px auto;
@@ -84,15 +120,6 @@
                 padding: 8px 10px;
             }
 
-            .banner-content h1 {
-                font-size: 32px;
-            }
-
-            .banner-content p {
-                font-size: 18px;
-                letter-spacing: 2px;
-            }
-
             .my-bookings {
                 scroll-margin-top: 280px;
             }
@@ -102,9 +129,11 @@
 <body>
     <header class="hotel-header">
         <div class="hotel-logo">
-            <a href="@Url.Action("TrangChu","Home")">
-                <img src="~/images/moon.png" alt="Moonlight Hotel"
+            <a href="@Url.Action("TrangChu", "Home")">
+                <img src="~/images/moon.png"
+                     alt="Moonlight Hotel"
                      class="hotel-logo-img" />
+
                 <h2>MOONLIGHT HOTEL</h2>
             </a>
         </div>
@@ -113,24 +142,48 @@
             <a href="#" id="btnGioiThieu">GIỚI THIỆU</a>
 
             <div class="menu-item">
-                <a href="@Url.Action("PhongNghi","Home")">PHÒNG NGHỈ</a>
+                <a href="@Url.Action("PhongNghi", "Home")">
+                    PHÒNG NGHỈ
+                </a>
+
                 <div class="dropdown-menu">
-                    <a href="@Url.Action("Index","Bookings",new { loaiPhong="Superior" })">Phòng Superior</a>
-                    <a href="@Url.Action("Index","Bookings",new { loaiPhong="Deluxe" })">Phòng Deluxe</a>
-                    <a href="@Url.Action("Index","Bookings",new { loaiPhong="HuongBien" })">Phòng Hướng Biển</a>
-                    <a href="@Url.Action("Index","Bookings",new { loaiPhong="GiaDinh" })">Phòng Gia Đình</a>
-                    <a href="@Url.Action("Index","Bookings",new { loaiPhong="Suite" })">Phòng Suite</a>
-                    <a href="@Url.Action("Index","Bookings",new { loaiPhong="CaoCap" })">Phòng Cao Cấp</a>
+                    <a href="@Url.Action("Index", "Bookings", new { loaiPhong = "Superior" })">
+                        Phòng Superior
+                    </a>
+                    <a href="@Url.Action("Index", "Bookings", new { loaiPhong = "Deluxe" })">
+                        Phòng Deluxe
+                    </a>
+                    <a href="@Url.Action("Index", "Bookings", new { loaiPhong = "HuongBien" })">
+                        Phòng Hướng Biển
+                    </a>
+                    <a href="@Url.Action("Index", "Bookings", new { loaiPhong = "GiaDinh" })">
+                        Phòng Gia Đình
+                    </a>
+                    <a href="@Url.Action("Index", "Bookings", new { loaiPhong = "Suite" })">
+                        Phòng Suite
+                    </a>
+                    <a href="@Url.Action("Index", "Bookings", new { loaiPhong = "CaoCap" })">
+                        Phòng Cao Cấp
+                    </a>
                 </div>
             </div>
 
             <div class="menu-item">
                 @Html.ActionLink("TIỆN ÍCH", "TienIch", "Home")
+
                 <div class="dropdown-menu">
-                    <a href="@Url.Action("Index","Dining",new { group="WELLNESS",serviceCode="POOL",open=1 })">Hồ Bơi</a>
-                    <a href="@Url.Action("Index","Dining",new { group="WELLNESS",serviceCode="GYM",open=1 })">Phòng GYM</a>
-                    <a href="@Url.Action("Index","Dining",new { group="WELLNESS" })">SPA &amp; Thư Giãn</a>
-                    <a href="@Url.Action("Index","Dining",new { group="WELLNESS",serviceCode="YOGA",open=1 })">Yoga cùng HLV</a>
+                    <a href="@Url.Action("Index", "Dining", new { group = "WELLNESS", serviceCode = "POOL", open = 1 })">
+                        Hồ Bơi
+                    </a>
+                    <a href="@Url.Action("Index", "Dining", new { group = "WELLNESS", serviceCode = "GYM", open = 1 })">
+                        Phòng GYM
+                    </a>
+                    <a href="@Url.Action("Index", "Dining", new { group = "WELLNESS" })">
+                        SPA &amp; Thư Giãn
+                    </a>
+                    <a href="@Url.Action("Index", "Dining", new { group = "WELLNESS", serviceCode = "YOGA", open = 1 })">
+                        Yoga cùng HLV
+                    </a>
                     <a href="#">Bữa Ăn Tại Phòng</a>
                     <a href="#">Không Gian Nghỉ Dưỡng</a>
                     <a href="#">Không Gian Sự Kiện</a>
@@ -139,11 +192,20 @@
 
             <div class="menu-item">
                 @Html.ActionLink("DỊCH VỤ", "DichVu", "Home")
+
                 <div class="dropdown-menu">
-                    <a href="@Url.Action("Index","Bookings")">Đặt phòng</a>
-                    <a href="@Url.Action("Index","Dining",new { group="WELLNESS" })">Thư giãn &amp; Sức khỏe</a>
-                    <a href="@Url.Action("Index","Dining",new { group="DINING" })">Nhà hàng &amp; Ẩm thực</a>
-                    <a href="@Url.Action("Index","ResidentServices")">Dịch vụ khách lưu trú</a>
+                    <a href="@Url.Action("Index", "Bookings")">
+                        Đặt phòng
+                    </a>
+                    <a href="@Url.Action("Index", "Dining", new { group = "WELLNESS" })">
+                        Thư giãn &amp; Sức khỏe
+                    </a>
+                    <a href="@Url.Action("Index", "Dining", new { group = "DINING" })">
+                        Nhà hàng &amp; Ẩm thực
+                    </a>
+                    <a href="@Url.Action("Index", "ResidentServices")">
+                        Dịch vụ khách lưu trú
+                    </a>
                     <a href="#">Thể Thao &amp; Giải Trí</a>
                     <a href="#">Hỗ Trợ Khách Hàng</a>
                     <a href="#">Tiệc &amp; Sự Kiện</a>
@@ -157,16 +219,27 @@
             </div>
 
             <div class="menu-item">
-                <a href="@Url.Action("Index","MyBookings")#my-bookings">ĐƠN ĐÃ ĐẶT</a>
+                <a href="@Url.Action("Index", "MyBookings")#my-bookings">
+                    ĐƠN ĐÃ ĐẶT
+                </a>
+
                 <div class="dropdown-menu">
-                    <a href="@Url.Action("Index","MyBookings")#my-bookings">Đơn đặt phòng</a>
-                    <a href="@Url.Action("Lookup","Dining")">Đơn ăn uống &amp; dịch vụ</a>
+                    <a href="@Url.Action("Index", "MyBookings")#my-bookings">
+                        Đơn đặt phòng
+                    </a>
+                    <a href="@Url.Action("Lookup", "Dining")">
+                        Đơn ăn uống &amp; dịch vụ
+                    </a>
                 </div>
             </div>
         </nav>
 
-        @Html.ActionLink("ĐẶT PHÒNG", "Index", "Bookings",
-            null, new { @class = "booking-btn" })
+        @Html.ActionLink(
+            "ĐẶT PHÒNG",
+            "Index",
+            "Bookings",
+            null,
+            new { @class = "booking-btn" })
     </header>
 
     <div class="intro-box" id="khungGioiThieu">
@@ -174,6 +247,7 @@
             <h2>KHÁCH SẠN MOONLIGHT HOTEL</h2>
             <button type="button" id="btnDong">&times;</button>
         </div>
+
         <div class="intro-content">
             <h3>Lịch sử hình thành và phát triển</h3>
             <p>
@@ -181,18 +255,21 @@
                 không gian nghỉ dưỡng thoải mái, tiện nghi và những
                 trải nghiệm lưu trú đáng nhớ.
             </p>
+
             <h3>Không gian nghỉ dưỡng</h3>
             <p>
                 Với phong cách thiết kế hiện đại, không gian ấm cúng
                 và hệ thống phòng nghỉ tiện nghi, khách sạn mong muốn
                 đáp ứng nhu cầu nghỉ dưỡng của nhiều đối tượng khách hàng.
             </p>
+
             <h3>Dịch vụ của khách sạn</h3>
             <p>
                 Moonlight Hotel cung cấp các tiện ích và dịch vụ hỗ trợ
                 khách hàng, hướng đến sự thoải mái và thuận tiện
                 trong suốt thời gian lưu trú.
             </p>
+
             <h3>Sứ mệnh</h3>
             <p>
                 Chúng tôi mong muốn mang đến sự hài lòng, dịch vụ chu đáo
@@ -203,11 +280,13 @@
 
     <section class="hotel-banner">
         <div class="banner">
-            <img src="~/images/nha trang.jpg" alt="MOONLIGHT HOTEL" />
-        </div>
-        <div class="banner-content">
-            <h1>MOONLIGHT HOTEL</h1>
-            <p>Trải nghiệm nghỉ dưỡng tuyệt vời bên bờ biển</p>
+            <img src="~/images/nha trang.jpg"
+                 alt="MOONLIGHT HOTEL" />
+
+            <div class="banner-content">
+                <h1>MOONLIGHT HOTEL</h1>
+                <p>Trải nghiệm nghỉ dưỡng tuyệt vời bên bờ biển</p>
+            </div>
         </div>
     </section>
 
@@ -228,7 +307,7 @@
                                     : benefit.Price.ToString(
                                         "N0",
                                         System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))
-                                        + " đ/người")
+                                      + " đ/người")
                             </strong>
                         </li>
                     }
@@ -237,8 +316,8 @@
                 <p>
                     Sau khi đặt phòng, bạn được chuyển sang trang chọn lịch dịch vụ.
                     Ưu đãi áp dụng khi đơn phòng đã xác nhận và đối soát tiền.
-                    Dịch vụ trả phí được thanh toán riêng;
-                    hồ bơi/GYM vẫn cần chọn lịch để kiểm tra chỗ.
+                    Dịch vụ trả phí được thanh toán riêng; hồ bơi/GYM vẫn cần
+                    chọn lịch để kiểm tra chỗ.
                 </p>
             </aside>
         }
@@ -250,10 +329,11 @@
             <aside class="resident-callout">
                 <h2>Dịch vụ ưu đãi theo đơn phòng của bạn</h2>
                 <p>
-                    Xem giá khách lưu trú, chọn ngày, giờ
-                    và số người sử dụng dịch vụ.
+                    Xem giá khách lưu trú, chọn ngày, giờ và số người
+                    sử dụng dịch vụ.
                 </p>
-                <a href="@Url.Action("Index","ResidentServices",new { id=roomOrder.BookingId })#resident-services">
+
+                <a href="@Url.Action("Index", "ResidentServices", new { id = roomOrder.BookingId })#resident-services">
                     Đặt dịch vụ khách lưu trú
                 </a>
             </aside>
@@ -263,15 +343,18 @@
     <footer class="hotel-footer">
         <div class="footer-container">
             <div class="footer-brand">
-                <a href="@Url.Action("TrangChu","Home")" class="footer-logo">
+                <a href="@Url.Action("TrangChu", "Home")"
+                   class="footer-logo">
                     MOONLIGHT HOTEL
                 </a>
+
                 <p>Trải nghiệm nghỉ dưỡng tuyệt vời bên bờ biển.</p>
             </div>
 
             <div class="footer-column">
                 <h3>LIÊN HỆ VỚI CHÚNG TÔI</h3>
                 <div class="footer-line"></div>
+
                 <p>ĐT: XXX 123 456</p>
                 <p>Email: moonlighthotel@gmail.com</p>
                 <p>Địa chỉ: Nha Trang, Khánh Hòa</p>
@@ -286,11 +369,22 @@
             <div class="footer-column">
                 <h3>LIÊN KẾT HỮU ÍCH</h3>
                 <div class="footer-line"></div>
-                <a href="@Url.Action("TrangChu","Home")">Trang chủ</a>
-                <a href="@Url.Action("Index","Dining",new { group="DINING" })">Nhà hàng &amp; Ẩm thực</a>
-                <a href="@Url.Action("Index","Dining",new { group="WELLNESS" })">Thư giãn &amp; Sức khỏe</a>
-                <a href="@Url.Action("Index","MyBookings")#my-bookings">Đơn đặt phòng của tôi</a>
-                <a href="@Url.Action("Lookup","Dining")">Đơn dịch vụ của tôi</a>
+
+                <a href="@Url.Action("TrangChu", "Home")">
+                    Trang chủ
+                </a>
+                <a href="@Url.Action("Index", "Dining", new { group = "DINING" })">
+                    Nhà hàng &amp; Ẩm thực
+                </a>
+                <a href="@Url.Action("Index", "Dining", new { group = "WELLNESS" })">
+                    Thư giãn &amp; Sức khỏe
+                </a>
+                <a href="@Url.Action("Index", "MyBookings")#my-bookings">
+                    Đơn đặt phòng của tôi
+                </a>
+                <a href="@Url.Action("Lookup", "Dining")">
+                    Đơn dịch vụ của tôi
+                </a>
                 <a href="#">Chính sách bảo mật</a>
                 <a href="#">Điều khoản sử dụng</a>
             </div>
@@ -299,9 +393,13 @@
                 <h3>BẢN TIN</h3>
                 <div class="footer-line"></div>
                 <p>ĐĂNG KÝ NHẬN TIN MỚI</p>
+
                 <form class="footer-form">
-                    <input type="email" placeholder="Nhập địa chỉ email..."
-                           aria-label="Địa chỉ email" required />
+                    <input type="email"
+                           placeholder="Nhập địa chỉ email..."
+                           aria-label="Địa chỉ email"
+                           required />
+
                     <button type="submit">Đăng ký</button>
                 </form>
             </div>
@@ -321,8 +419,11 @@
 
         btnGioiThieu.addEventListener("click", function (event) {
             event.preventDefault();
+
             khungGioiThieu.style.display =
-                khungGioiThieu.style.display === "block" ? "none" : "block";
+                khungGioiThieu.style.display === "block"
+                    ? "none"
+                    : "block";
         });
 
         btnDong.addEventListener("click", function () {

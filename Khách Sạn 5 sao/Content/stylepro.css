@@ -1,5 +1,4 @@
-﻿
-/* Cài đặt chung */
+﻿/* Cài đặt chung */
 * {
     margin: 0;
     padding: 0;
@@ -13,11 +12,12 @@ body {
     line-height: 1.6;
 }
 
-
-
-/* Banner trang chủ */
+/* Khung banner giữ chữ nằm trong ảnh */
 .hotel-banner {
+    position: relative;
     width: 100%;
+    overflow: hidden;
+    isolation: isolate;
 }
 
 .banner {
@@ -48,10 +48,11 @@ body {
 /* Chữ nằm chính giữa ảnh */
 .banner-content {
     position: absolute;
-    top: 42%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 100%;
+    width: calc(100% - 40px);
+    max-width: 1100px;
     text-align: center;
     color: white;
     z-index: 2;
@@ -59,15 +60,17 @@ body {
 
     .banner-content h1 {
         font-family: Georgia, serif;
-        font-size: 76px;
+        font-size: clamp(30px, 5vw, 76px);
+        line-height: 1.15;
         font-weight: bold;
         letter-spacing: 1px;
         margin-bottom: 15px;
     }
 
     .banner-content p {
-        font-size: 26px;
-        letter-spacing: 5px;
+        font-size: clamp(14px, 1.6vw, 26px);
+        line-height: 1.5;
+        letter-spacing: clamp(1px, 0.25vw, 5px);
         color: #ffd700;
     }
 
@@ -98,7 +101,6 @@ body {
         .banner-nav a:hover {
             color: #e94560;
         }
-
 
 /* Phần giới thiệu */
 .home-intro {
